@@ -83,7 +83,7 @@ h1{font-size:26px;margin:0;font-weight:700;line-height:1.3}h2{font-weight:700}
 /* sections */
 .section{margin-top:16px}.section-head{padding:16px 18px 6px}.section-head h2{font-size:18px;margin:0 0 4px}.section-body{padding:6px 18px 18px}
 .subgroup{margin-top:14px}.subgroup h3{font-size:15px;margin:0 0 8px}
-.depot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.depot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
 .depot{display:flex;flex-direction:column;gap:2px;border:1px solid rgba(255,255,255,.9);border-left:4px solid #b4c6dd;border-radius:14px;padding:12px 14px;background:rgba(255,255,255,.78);cursor:pointer;min-width:0}
 .depot:hover{background:#fff}
 .depot[data-st=jam]{border-left-color:var(--jam)}.depot[data-st=busy]{border-left-color:var(--busy)}.depot[data-st=clear]{border-left-color:var(--clear)}
@@ -123,6 +123,16 @@ button.go.sent{background:var(--clear);box-shadow:0 6px 16px rgba(46,158,91,.3)}
 .modal-box.wide{width:min(560px,100%)}.modal-box h2{margin:0 0 8px;font-size:20px}
 .mhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}.mhead h2{margin:0;font-size:18px;line-height:1.4}
 #bannerM{display:none}#depotModal .btn{width:100%;margin:12px 0 4px}
+.dsearch input{width:100%;padding:12px 14px;font-size:16px;border-radius:14px}
+.dhead{margin:10px 2px 8px}
+.d-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.vbadge{flex:none;font-size:11.5px;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.vbadge.ok{background:#d9f2e1;color:#18613a}.vbadge.maybe{background:#fff1cc;color:#7a5600}.vbadge.no{background:#e7eaf0;color:#51627a}
+.d-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.d-actions .secondary{flex:1 1 auto;text-align:center;text-decoration:none;display:inline-block}
+.depot p a{color:var(--accent)}
+.dmore{width:100%;margin-top:12px}
+.row a.mapbtn{display:inline-block;margin-top:4px;padding:8px 14px;background:var(--accent);color:#fff;border-radius:12px;text-decoration:none;font-weight:600}
 [hidden]{display:none!important}
 @media(min-width:821px){.details{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}}
 @media(max-width:820px){main{padding:14px}.layout{grid-template-columns:1fr}.depot-grid{grid-template-columns:1fr}}
@@ -185,10 +195,12 @@ button.go.sent{background:var(--clear);box-shadow:0 6px 16px rgba(46,158,91,.3)}
 </div>
 
 <section class="card section" id="icdDepots">
-  <div class="section-head"><h2>ลานตู้ ICD / Depot</h2><div class="muted">11 แห่ง · กดปุ่ม “ดูรายงานล่าสุด” ที่แต่ละลาน</div></div>
+  <div class="section-head"><h2>ค้นหาลานตู้ ICD / Depot</h2><div class="muted">พิมพ์ชื่อลาน ชื่อย่อ พื้นที่ หรือเบอร์โทร · ข้อมูลลานมาจากรายชื่อเดิมและ Google Maps ควรโทรยืนยันก่อนเดินทาง</div></div>
   <div class="section-body">
-    <div class="subgroup"><h3>กรุงเทพมหานคร · ICD ลาดกระบัง (4 แห่ง)</h3><div class="depot-grid" id="depotBangkok"></div></div>
-    <div class="subgroup"><h3>ชลบุรี · แหลมฉบังและศรีราชา (7 แห่ง)</h3><div class="depot-grid" id="depotChonburi"></div></div>
+    <div class="dsearch"><input id="depotSearch" type="search" placeholder="ค้นหาลานตู้ เช่น TIFFA, ลาดกระบัง, ศรีราชา, KCD" autocomplete="off" enterkeyhint="search" aria-label="ค้นหาลานตู้"></div>
+    <div class="dhead muted" id="depotHead" aria-live="polite"></div>
+    <div class="depot-grid" id="depotResults"></div>
+    <button class="secondary dmore" id="depotMore" type="button" hidden></button>
   </div>
 </section>
 
@@ -222,19 +234,80 @@ const DEFAULT_PORT_TYPES = {
 };
 let PORT_TYPES = {...DEFAULT_PORT_TYPES};
 
-// รายละเอียดลานตู้ 11 แห่ง ตามข้อมูลที่ผู้ใช้ให้มา แยกเป็นหมวด ICD / Depot
+// ฐานข้อมูลลานตู้ (กรุงเทพฯ-ชลบุรี) คัดจากรายชื่อเดิมและตรวจกับ Google Maps ณ 12 พ.ย. 2569
+// vs: ok=พบใน Google Maps, maybe=ชื่อใกล้เคียง, no=ยังไม่พบ · legacy=ท่าเรือที่มีในแผนผังแล้ว (ซ่อนจากการค้นหา)
 const DEFAULT_FACILITIES = {
-  'ICD-BKK-01':{name:'Siam Shoreside Services (ป.1 ลาดกระบัง)',short:'Siam Shoreside Services',type:'สถานีบรรจุและลานเก็บตู้คอนเทนเนอร์ (ICD Gate 1)',location:'ICD ลาดกระบัง กรุงเทพฯ',service:'รับฝาก ตรวจสอบ ซ่อมบำรุงตู้สินค้า และขนถ่ายผ่านระบบราง-ทางบก',city:'กรุงเทพมหานคร'},
-  'ICD-BKK-02':{name:'Evergreen Container Terminal (Thailand) Ltd. (ป.3 ลาดกระบัง)',short:'Evergreen Container Terminal',type:'ลานตู้คอนเทนเนอร์สายการเรือ (ICD Gate 3)',location:'ICD ลาดกระบัง กรุงเทพฯ',service:'จัดเก็บตู้เปล่า ล้างและซ่อมแซมตู้คอนเทนเนอร์นำเข้า-ส่งออก',city:'กรุงเทพมหานคร'},
-  'ICD-BKK-03':{name:'MTD LKB (MEDLOG THAI DEPOT CO., LTD.)',short:'MTD LKB',type:'ลานจัดการและฝากตู้คอนเทนเนอร์',location:'เขตลาดกระบัง กรุงเทพฯ',service:'รับฝากตู้เปล่า ตรวจเช็กสภาพมาตรฐาน ซ่อมแซม และทำความสะอาด',city:'กรุงเทพมหานคร'},
-  'ICD-BKK-04':{name:'TIFFA ICD LKB GATE 4',short:'TIFFA ICD LKB',type:'สถานีบรรจุและแยกสินค้ากล่อง (ICD Gate 4)',location:'ICD ลาดกระบัง กรุงเทพฯ',service:'บริการบรรจุสินค้าลงตู้ (CFS) ตรวจรับและหมุนเวียนตู้คอนเทนเนอร์',city:'กรุงเทพมหานคร'},
-  'ICD-LCB-01':{name:'KCD Depot (บริษัท เคซีดี (ประเทศไทย) จำกัด / KCD2)',short:'KCD Depot (KCD2)',type:'ลานรับฝากและจัดการตู้คอนเทนเนอร์ (Empty Container Depot)',location:'อ่าวอุดม-แหลมฉบัง ต.ทุ่งสุขลา อ.ศรีราชา จ.ชลบุรี',service:'รับฝากตู้เปล่า ตรวจสภาพ ซ่อมแซม ล้างตู้ และบริหารจัดการผ่านระบบ K-Digi App',city:'จังหวัดชลบุรี'},
-  'ICD-LCB-02':{name:'ลาน KCD เคอรี่',short:'ลาน KCD เคอรี่',type:'ลานจัดเก็บและหมุนเวียนตู้คอนเทนเนอร์',location:'ต.ทุ่งสุขลา อ.ศรีราชา จ.ชลบุรี (ใกล้นิคมแหลมฉบัง)',service:'บริการรับฝาก คืนตู้คอนเทนเนอร์ และจุดขนถ่ายตู้สินค้า',city:'จังหวัดชลบุรี'},
-  'ICD-LCB-03':{name:'Evergreen Container Terminal (Thailand) LTD. (แหลมฉบัง B2)',short:'Evergreen (B2)',type:'ท่าเทียบเรือและลานตู้คอนเทนเนอร์',location:'ท่าเรือแหลมฉบัง อ.ศรีราชา จ.ชลบุรี',service:'ขนถ่ายตู้สินค้าลงเรือ จัดเก็บตู้คอนเทนเนอร์ (ข้อมูลที่ให้มาระบุเปิดบริการ 24 ชั่วโมง)',city:'จังหวัดชลบุรี'},
-  'ICD-LCB-04':{name:'REI Depot (ThaiReefer Container Yard)',short:'REI Depot',type:'ลานตู้คอนเทนเนอร์แห้งและตู้เย็น',location:'โซนแหลมฉบัง อ.ศรีราชา จ.ชลบุรี (ข้อมูลที่ให้มาระบุห่างจากท่าเรือ 14 กม.)',service:'จุดรับฝากตู้ มีบริการปลั๊กเสียบไฟสำหรับตู้เย็น (Reefer Container) และซ่อมบำรุง',city:'จังหวัดชลบุรี'},
-  'ICD-LCB-05':{name:'Thai Eng Kong Container Services (LCB Depot 1)',short:'Thai Eng Kong',type:'ลานฝากและซ่อมแซมตู้คอนเทนเนอร์',location:'โซนบึง อ.ศรีราชา จ.ชลบุรี',service:'บริการจัดเก็บตู้เปล่า ซ่อมแซม ตรวจสอบสภาพตู้ก่อนบรรจุส่งออก',city:'จังหวัดชลบุรี'},
-  'ICD-LCB-06':{name:'บริษัท อีสเทิร์นซี แหลมฉบัง เทอร์มินัล จำกัด ESCO (B3)',short:'ESCO (B3)',type:'ท่าเทียบเรือและลานตู้สินค้าหลัก',location:'ท่าเรือแหลมฉบัง อ.ศรีราชา จ.ชลบุรี',service:'บริการรับ-ส่งตู้สินค้า ขนถ่ายตู้ขึ้น-ลงเรือ และบริหารจัดการลานตู้คอนเทนเนอร์ (ข้อมูลที่ให้มาระบุเปิดบริการ 24 ชั่วโมง)',city:'จังหวัดชลบุรี'},
-  'ICD-LCB-07':{name:'MTD LCP (สาขาท่าเรือแหลมฉบัง)',short:'MTD LCP',type:'ลานฝากและบริการตู้คอนเทนเนอร์',location:'โซนบึง ใกล้นิคมอุตสาหกรรมแหลมฉบัง จ.ชลบุรี',service:'บริการยกตู้ ฝากวางตู้เปล่า ล้างทำความสะอาด และบำรุงรักษาตู้สินค้า',city:'จังหวัดชลบุรี'}
+  "ICD-BKK-01":{"name": "Siam Shoreside Services (ป.1 ลาดกระบัง)", "short": "Siam Shoreside Services", "type": "สถานีบรรจุและลานเก็บตู้คอนเทนเนอร์ (ICD Gate 1)", "location": "ICD ลาดกระบัง กรุงเทพฯ", "service": "รับฝาก ตรวจสอบ ซ่อมบำรุงตู้สินค้า และขนถ่ายผ่านระบบราง-ทางบก", "city": "กรุงเทพมหานคร", "alias": "ICD ลาดกระบัง ป.1 ประตู 1 gate 1 SSS Siam Shoreside Services (ICD ประตู 1) ICD ลาดกระบัง ประตู gate", "phone": "02-763-5000, 02-737-9001", "hours": "จ–ศ 08:00–17:00 (Maersk ระบุรับ/คืนตู้เปล่า จ–ส 08:00–20:00)", "pid": "ChIJMZ7z9ltmHTERC6mKmXM3EN4", "gname": "Siam Shoreside Services (ICD ประตู 1)", "vs": "ok"},
+  "ICD-BKK-02":{"name": "Evergreen Container Terminal (Thailand) Ltd. (ป.3 ลาดกระบัง)", "short": "Evergreen Container Terminal", "type": "ลานตู้คอนเทนเนอร์สายการเรือ (ICD Gate 3)", "location": "ICD ลาดกระบัง กรุงเทพฯ", "service": "จัดเก็บตู้เปล่า ล้างและซ่อมแซมตู้คอนเทนเนอร์นำเข้า-ส่งออก", "city": "กรุงเทพมหานคร", "alias": "ICD ลาดกระบัง ป.3 ประตู 3 gate 3 เอเวอร์กรีน Evergreen Container Terminal (Thailand) ประตู 3 ICD ลาดกระบัง ประตู gate", "phone": "02-737-9888", "pid": "ChIJLXanFmRmHTERODZiDeBpvmk", "gname": "Evergreen Container Terminal (Thailand) ประตู 3", "vs": "ok"},
+  "ICD-BKK-03":{"name": "MTD LKB (MEDLOG THAI DEPOT CO., LTD.)", "short": "MTD LKB", "type": "ลานจัดการและฝากตู้คอนเทนเนอร์", "location": "เขตลาดกระบัง กรุงเทพฯ", "service": "รับฝากตู้เปล่า ตรวจเช็กสภาพมาตรฐาน ซ่อมแซม และทำความสะอาด", "city": "กรุงเทพมหานคร", "alias": "Medlog Thai Depot MTD", "phone": "02-049-9800", "hours": "จ–ส 07:30–22:00", "pid": "ChIJE-bRWlJnHTERWPCjKHUSU04", "gname": "MTD LKB (Medlog Thai Depot สาขาลาดกระบัง)", "vs": "ok"},
+  "ICD-BKK-04":{"name": "TIFFA ICD LKB GATE 4", "short": "TIFFA ICD LKB", "type": "สถานีบรรจุและแยกสินค้ากล่อง (ICD Gate 4)", "location": "ICD ลาดกระบัง กรุงเทพฯ", "service": "บริการบรรจุสินค้าลงตู้ (CFS) ตรวจรับและหมุนเวียนตู้คอนเทนเนอร์", "city": "กรุงเทพมหานคร", "alias": "ICD ลาดกระบัง ป.4 ประตู 4 gate 4 ทิฟฟา Tiffa I.C.D. Co.,Ltd. (ประตู 4) ICD ลาดกระบัง ประตู gate", "phone": "02-737-9990", "pid": "ChIJ-5V0S2JmHTERGVX8c7RFx0k", "gname": "Tiffa I.C.D. Co.,Ltd. (ประตู 4)", "vs": "ok"},
+  "ICD-LCB-01":{"name": "KCD Depot (บริษัท เคซีดี (ประเทศไทย) จำกัด / KCD2)", "short": "KCD Depot (KCD2)", "type": "ลานรับฝากและจัดการตู้คอนเทนเนอร์ (Empty Container Depot)", "location": "อ่าวอุดม-แหลมฉบัง ต.ทุ่งสุขลา อ.ศรีราชา จ.ชลบุรี", "service": "รับฝากตู้เปล่า ตรวจสภาพ ซ่อมแซม ล้างตู้ และบริหารจัดการผ่านระบบ K-Digi App", "city": "จังหวัดชลบุรี", "alias": "KCD KCD2 เคซีดี", "hours": "เปิดทุกวัน 05:00–19:00", "pid": "ChIJq0-Gw6i3AjER_8zUnETc0L4", "gname": "KCD2", "vs": "ok"},
+  "ICD-LCB-02":{"name": "ลาน KCD เคอรี่", "short": "ลาน KCD เคอรี่", "type": "ลานจัดเก็บและหมุนเวียนตู้คอนเทนเนอร์", "location": "ต.ทุ่งสุขลา อ.ศรีราชา จ.ชลบุรี (ใกล้นิคมแหลมฉบัง)", "service": "บริการรับฝาก คืนตู้คอนเทนเนอร์ และจุดขนถ่ายตู้สินค้า", "city": "จังหวัดชลบุรี", "alias": "KCD เคอรี่ kerry", "vs": "no"},
+  "ICD-LCB-03":{"name": "Evergreen Container Terminal (Thailand) LTD. (แหลมฉบัง B2)", "short": "Evergreen (B2)", "type": "ท่าเทียบเรือและลานตู้คอนเทนเนอร์", "location": "ท่าเรือแหลมฉบัง อ.ศรีราชา จ.ชลบุรี", "service": "", "city": "จังหวัดชลบุรี", "legacy": true},
+  "ICD-LCB-04":{"name": "REI Depot (ThaiReefer Container Yard)", "short": "REI Depot", "type": "ลานตู้คอนเทนเนอร์แห้งและตู้เย็น", "location": "โซนแหลมฉบัง อ.ศรีราชา จ.ชลบุรี (ข้อมูลที่ให้มาระบุห่างจากท่าเรือ 14 กม.)", "service": "จุดรับฝากตู้ มีบริการปลั๊กเสียบไฟสำหรับตู้เย็น (Reefer Container) และซ่อมบำรุง", "city": "จังหวัดชลบุรี", "alias": "REI reefer ตู้เย็น REI Depot (ลานตู้ REI แหลมฉบัง)", "phone": "086-777-5324, 038-482-053-4, 038-482-038", "hours": "จ–ส 08:00–17:00", "pid": "ChIJK2-xyjy4AjER32jrTw3TC7E", "gname": "REI Depot (ลานตู้ REI แหลมฉบัง)", "vs": "ok"},
+  "ICD-LCB-05":{"name": "Thai Eng Kong Container Services (LCB Depot 1)", "short": "Thai Eng Kong", "type": "ลานฝากและซ่อมแซมตู้คอนเทนเนอร์", "location": "โซนบึง อ.ศรีราชา จ.ชลบุรี", "service": "บริการจัดเก็บตู้เปล่า ซ่อมแซม ตรวจสอบสภาพตู้ก่อนบรรจุส่งออก", "city": "จังหวัดชลบุรี", "alias": "TEK LCB Depot 1 ไทยเอ็งกง Thai Eng Kong Container Services (LCB Depot 1)", "phone": "033-136-793, 038-491-613-4, 038-400-842", "hours": "จ–ส 08:00–20:00", "pid": "ChIJ--2AEAC5AjERJW1g_LF7Gb0", "gname": "Thai Eng Kong Container Services (LCB Depot 1)", "vs": "ok"},
+  "ICD-LCB-06":{"name": "บริษัท อีสเทิร์นซี แหลมฉบัง เทอร์มินัล จำกัด ESCO (B3)", "short": "ESCO (B3)", "type": "ท่าเทียบเรือและลานตู้สินค้าหลัก", "location": "ท่าเรือแหลมฉบัง อ.ศรีราชา จ.ชลบุรี", "service": "", "city": "จังหวัดชลบุรี", "legacy": true},
+  "ICD-LCB-07":{"name": "MTD LCP (สาขาท่าเรือแหลมฉบัง)", "short": "MTD LCP", "type": "ลานฝากและบริการตู้คอนเทนเนอร์", "location": "โซนบึง ใกล้นิคมอุตสาหกรรมแหลมฉบัง จ.ชลบุรี", "service": "บริการยกตู้ ฝากวางตู้เปล่า ล้างทำความสะอาด และบำรุงรักษาตู้สินค้า", "city": "จังหวัดชลบุรี", "alias": "MTD LCP Medlog", "vs": "no"},
+  "TP-001":{"name": "บี.ซี. เดโป จำกัด (B.C. Depot)", "short": "BC", "type": "ลานตู้ / Depot", "location": "คลองเตย", "city": "กรุงเทพมหานคร", "phone": "083-823-4202, 02-671-6941-3", "hours": "จ–ศ 08:30–17:00", "pid": "ChIJAzL65JOf4jARjapmFVntstY", "gname": "B.C.Depot Co.,Ltd (คลองเตย)", "alias": "BC B.C.Depot Co.,Ltd (คลองเตย)", "vs": "ok"},
+  "TP-008":{"name": "คอนเซ็นเตอร์ จำกัด (Concenter)", "short": "คอนเซ็นเตอร์ (Concenter)", "type": "ลานตู้ / Depot", "location": "คลองเตย (คอน 3)", "city": "กรุงเทพมหานคร", "phone": "02-712-2405-11", "vs": "no"},
+  "TP-009":{"name": "คอนเซ็นเตอร์ จำกัด (Concenter)", "short": "CONCENTER 4", "type": "ลานตู้ / Depot", "location": "บางนา กม.3.5 (คอน 4)", "city": "กรุงเทพมหานคร", "phone": "02-393-3921, 02-393-1110, 02-393-5769", "hours": "จ–ส 08:30–17:00", "pid": "ChIJAZV1Fg-g4jARgaQSa5pJWVw", "gname": "บริษัท คอนเซ็นเตอร์ จำกัด (ซอยบางนา-ตราด 42)", "alias": "CONCENTER 4 บริษัท คอนเซ็นเตอร์ จำกัด (ซอยบางนา-ตราด 42)", "vs": "ok"},
+  "TP-010":{"name": "อีสเทิร์น ซี แหลมฉบัง เทอร์มินัล จำกัด (ESCO)", "short": "อีสเทิร์น ซี แหลมฉบัง เทอร์มินัล (ESCO)", "type": "ลานตู้ / Container terminal", "location": "ลาดกระบัง ป.2", "city": "กรุงเทพมหานคร", "phone": "02-106-8900, 02-737-9701, 038-491-255", "hours": "จ–ศ 08:00–05:00 (ตามที่ Google แสดง)", "pid": "ChIJj0W4bFpmHTERX4Q0tAAvSZU", "gname": "ESCO ICD ประตู 2 ลาดกระบัง", "alias": "ESCO ICD ประตู 2 ลาดกระบัง ICD ลาดกระบัง ประตู gate", "vs": "ok"},
+  "TP-012":{"name": "อาร์เอส คอนเทนเนอร์ เดโปท์ จำกัด (R.S.)", "short": "อาร์เอส คอนเทนเนอร์ เดโปท์ (R.S.)", "type": "ลานตู้ / Depot", "location": "บางนา กม.1 ซอยพานิชการบางนา", "city": "กรุงเทพมหานคร", "phone": "02-743-6661-3, แผนกขนส่ง 02-743-6664", "vs": "no"},
+  "TP-015":{"name": "ซี.ดี.เอส. สโตรเรจ จำกัด (CDS)", "short": "CDS STORAGE", "type": "ลานตู้ / Storage", "location": "ซอยลาซาล", "city": "กรุงเทพมหานคร", "phone": "02-758-8191-7", "alias": "CDS STORAGE", "vs": "no"},
+  "TP-016":{"name": "ซี.ดี.เอส. สโตรเรจ จำกัด (CDS 1)", "short": "CDS STORAGE; CDS กม.6", "type": "ลานตู้ / Storage", "location": "บางนา กม.6 ซอยปลัดเปรียง", "city": "กรุงเทพมหานคร", "phone": "02-740-3162, 02-740-3163-7", "alias": "CDS STORAGE; CDS กม.6", "vs": "no"},
+  "TP-017":{"name": "คอนเทนเนอร์ดีโป้ท์เซอร์วิส จำกัด (CDS 2)", "short": "CDS กม.6", "type": "ลานตู้ / Depot", "location": "บางนา กม.6 ข้างตึกบางนา-ทาวเวอร์", "city": "กรุงเทพมหานคร", "phone": "02-312-0731-7, 02-312-0297-8", "alias": "CDS กม.6", "vs": "no"},
+  "TP-022":{"name": "เอเวอร์กรีน คอนเทนเนอร์ (ปทท) จำกัด", "short": "LCD Evergreen ลานนอก", "type": "ลานตู้ / Depot", "location": "ลาดกระบัง ป.3 ลานนอก", "city": "กรุงเทพมหานคร", "phone": "02-737-9888, 02-737-7474-86", "pid": "ChIJLXanFmRmHTERODZiDeBpvmk", "gname": "Evergreen Container Terminal (Thailand) ประตู 3", "alias": "LCD Evergreen ลานนอก Evergreen Container Terminal (Thailand) ประตู 3 ICD ลาดกระบัง ประตู gate", "vs": "maybe"},
+  "TP-029":{"name": "เอ็น วาย เค ดิสทริบิวชั่น เซอร์วิส (ประเทศไทย) จำกัด", "short": "เอ็น วาย เค ดิสทริบิวชั่น เซอร์วิส (ประเทศไทย)", "type": "ท่าบก / ICD", "location": "ลาดกระบัง ป.6", "city": "กรุงเทพมหานคร", "phone": "02-737-9900", "pid": "ChIJc5uuJyJnHTER5y2QmCJeR6Y", "gname": "ICD ลาดกระบัง ประตู 6", "alias": "ICD ลาดกระบัง ประตู 6 ICD ลาดกระบัง ประตู gate", "vs": "maybe"},
+  "TP-035":{"name": "จีฟ่า โลจิสติกส์ จำกัด (G-FA)", "short": "จีฟ่า โลจิสติกส์ (G-FA)", "type": "ลานตู้ / Logistics", "location": "ลาดกระบัง", "city": "กรุงเทพมหานคร", "phone": "02-737-7338-9", "vs": "no"},
+  "TP-040":{"name": "คอสยามทรานสปอร์ต จำกัด", "short": "คอสยามทรานสปอร์ต", "type": "ลานตู้ / Depot", "location": "คลองเตย (สำนักงานใหญ่)", "city": "กรุงเทพมหานคร", "phone": "02-258-9994, 02-258-9133", "vs": "no"},
+  "TP-041":{"name": "คอสยามทรานสปอร์ต จำกัด", "short": "COSIAM 1", "type": "ลานตู้ / Depot", "location": "บางนา กม.2 (สาขา 1)", "city": "กรุงเทพมหานคร", "phone": "02-399-1733-5, 02-399-1731-7", "pid": "ChIJNa7CZ_FfHTERlPgorac5SVQ", "gname": "Cosiam Warehouse (บางนา-ตราด ฟรอนเทจ)", "alias": "COSIAM 1 Cosiam Warehouse (บางนา-ตราด ฟรอนเทจ)", "vs": "maybe"},
+  "TP-043":{"name": "คอนพูลท์ จำกัด (Contpool)", "short": "คอนพูลท์ (Contpool)", "type": "ลานตู้ / Depot", "location": "บางนา", "city": "กรุงเทพมหานคร", "phone": "02-740-3225, 02-740-3227-8", "vs": "no"},
+  "TP-045":{"name": "เกรทเทนเนอร์ จำกัด (Greatainer)", "short": "เกรทเทนเนอร์ (Greatainer)", "type": "ลานตู้ / Depot", "location": "บางนา กม.4", "city": "กรุงเทพมหานคร", "phone": "02-746-8934-5", "vs": "no"},
+  "TP-047":{"name": "คัสตอม โกลบอล เซอร์วิส จำกัด", "short": "คัสตอม โกลบอล เซอร์วิส", "type": "ลานตู้ / Container service", "location": "คลองเตย", "city": "กรุงเทพมหานคร", "phone": "02-249-7255-6", "vs": "no"},
+  "TP-051":{"name": "วินวิน คอนเทนเนอร์ เดโป จำกัด", "short": "WIN WIN", "type": "ลานตู้ / Depot", "location": "ลาดกระบัง", "city": "กรุงเทพมหานคร", "phone": "02-360-6492, 02-360-6495", "hours": "เปิด 24 ชม. (Maersk: จ–ส 08:00–20:00, อา 08:00–17:00)", "pid": "ChIJScv6lTdmHTER6u2Mu0ddG8E", "gname": "Win Win Container Depot ลาดกระบัง", "alias": "WIN WIN Win Win Container Depot ลาดกระบัง", "vs": "ok"},
+  "TP-054":{"name": "ไทย ฮันจิน โลจิสติกส์ จำกัด", "short": "ไทย ฮันจิน โลจิสติกส์", "type": "ลานตู้ / Logistics", "location": "ลาดกระบัง ป.5", "city": "กรุงเทพมหานคร", "phone": "02-116-7401, 02-737-6970, 02-737-9400", "pid": "ChIJx4XyYWRmHTERtVefu_Gp8lI", "gname": "Thai Hanjin Logistics (ICD ประตู 5)", "alias": "Thai Hanjin Logistics (ICD ประตู 5) ICD ลาดกระบัง ประตู gate", "vs": "ok"},
+  "TP-055":{"name": "เอ็น เอช พรอสเพอริตี้ จำกัด (NHP)", "short": "NHP", "type": "ลานตู้ / Depot", "location": "ท่าป่า ใกล้สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง", "city": "กรุงเทพมหานคร", "phone": "02-737-4561, 02-737-4560-79", "pid": "ChIJeWDqoIRoHTERmitSfjSyPoY", "gname": "NHP Lat Krabang", "alias": "NHP NHP Lat Krabang", "vs": "ok"},
+  "TP-086":{"name": "บางซื่อ อินแลนด์ พอร์ต จำกัด", "short": "บางซื่อ อินแลนด์ พอร์ต", "type": "ท่าบก / Inland port", "location": "บางซื่อ กรุงเทพฯ", "city": "กรุงเทพมหานคร", "phone": "02-272-4808", "vs": "no"},
+  "TP-087":{"name": "บางนา ซี ดี จำกัด", "short": "บางนา ซี ดี", "type": "ลานตู้ / Depot", "location": "บางนา กม.4", "city": "กรุงเทพมหานคร", "phone": "02-746-8978-80", "vs": "no"},
+  "TP-018":{"name": "คอนเทนเนอร์ดีโป้ท์เซอร์วิส แอนด์ทรานสปอร์ต จำกัด", "short": "คอนเทนเนอร์ดีโป้ท์เซอร์วิส แอนด์ทรานสปอร์ต", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง (CDS)", "city": "จังหวัดชลบุรี", "phone": "038-768-628, 038-768-625-8", "hours": "จ–ส 08:00–17:00", "pid": "ChIJZ824usi5AjERY_TQJCcvRC0", "gname": "cds (laemchabang) transport", "alias": "cds (laemchabang) transport", "vs": "ok"},
+  "TP-034":{"name": "สยาม เดโปท์ แอนด์ ทรานสปอร์ต จำกัด", "short": "SIAM DEPOT", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-481-363-4", "alias": "SIAM DEPOT", "vs": "no"},
+  "TP-042":{"name": "คอสยามทรานสปอร์ต จำกัด", "short": "คอสยามทรานสปอร์ต", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง (สาขา 5)", "city": "จังหวัดชลบุรี", "phone": "092-455-5164, 038-400-151", "hours": "จ–ส 08:00–17:00", "pid": "ChIJCZPoS4m5AjERNUXo88sLkm4", "gname": "คอสยาม 5 แหลมฉบัง", "alias": "คอสยาม 5 แหลมฉบัง", "vs": "ok"},
+  "TP-044":{"name": "คอนพูลท์ จำกัด (Contpool)", "short": "คอนพูลท์ (Contpool)", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-495-177-8", "vs": "no"},
+  "TP-046":{"name": "เกรทเทนเนอร์ จำกัด (Greatainer)", "short": "เกรทเทนเนอร์ (Greatainer)", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-400-151, 038-491-757", "vs": "no"},
+  "TP-050":{"name": "เคไลน์คอนเทนเนอร์เซอร์วิส จำกัด", "short": "เคไลน์คอนเทนเนอร์เซอร์วิส", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-774-999, 038-704-133", "hours": "จ–ศ 08:00–17:30", "pid": "ChIJ-3Xu08DJAjEReK0xLzH4tsA", "gname": "K Line Container Service (Thailand) บางพระ", "alias": "K Line Container Service (Thailand) บางพระ", "vs": "ok"},
+  "TP-052":{"name": "วินวิน คอนเทนเนอร์ เดโป จำกัด", "short": "WIN WIN", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-482-683-6", "hours": "จ–ส 07:00–20:00 (ส ถึง 17:00)", "pid": "ChIJYXK3WIy5AjERCbHV3JC9kxs", "gname": "Winwin (แหลมฉบัง) หนองขาม", "alias": "WIN WIN Winwin (แหลมฉบัง) หนองขาม", "vs": "ok"},
+  "TP-053":{"name": "เค.อาร์.ซี. ทรานสปอร์ต แอนด์ เซอร์วิส จำกัด", "short": "เค.อาร์.ซี. ทรานสปอร์ต แอนด์ เซอร์วิส", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-401-309, 038-401-309-10", "hours": "จ–ศ 06:00–20:00 · ส 06:00–17:00", "pid": "ChIJOwKB0Qq5AjERV_y1gsfkT0A", "gname": "K.R.C. Transport & Service", "alias": "K.R.C. Transport & Service", "vs": "ok"},
+  "TP-056":{"name": "เอสเอ็มพีแอล ซินดิเคท จำกัด (SMPL / ลาน 99)", "short": "เอสเอ็มพีแอล ซินดิเคท (SMPL / ลาน 99)", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-060-061, 083-118-0099", "pid": "ChIJPce0KpC3AjERhhKVAWjRCYE", "gname": "ลาน 99 (SMPL)", "alias": "ลาน 99 (SMPL)", "vs": "ok"},
+  "TP-058":{"name": "ยูนิไวส์ คอนเทนเนอร์ เซอร์วิส จำกัด", "short": "ยูนิไวส์ คอนเทนเนอร์ เซอร์วิส", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-400-861, 038-400-861-2", "hours": "จ–ส 07:30–17:00", "pid": "ChIJx7bqnx-6AjER7H55_EIg7tc", "gname": "ยูนิไวส์ คอนเทนเนอร์ เซอร์วิส", "alias": "ยูนิไวส์ คอนเทนเนอร์ เซอร์วิส", "vs": "ok"},
+  "TP-066":{"name": "วายเจซี (ประเทศไทย) จำกัด (YJC)", "short": "YJC", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "089-493-3099, 038-296-218, 038-296-866", "hours": "จ–ส 08:00–17:00", "pid": "ChIJYeFyGHfIAjERALLEfFexBPk", "gname": "YJC Thailand (Container Depot)", "alias": "YJC YJC Thailand (Container Depot)", "vs": "ok"},
+  "TP-068":{"name": "เอ-วัน อินเตอร์เนชั่นแนล คอนเทนเนอร์ ดีพอท จำกัด", "short": "เอ-วัน อินเตอร์เนชั่นแนล คอนเทนเนอร์ ดีพอท", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-400-768, 038-400-788", "hours": "จ–ส 08:00–17:00", "pid": "ChIJR5n2ut25AjERLIDYp4sQMcY", "gname": "A-One International Container Depot", "alias": "A-One International Container Depot", "vs": "ok"},
+  "TP-069":{"name": "เอ็ม อาร์ ซีดี คอนเทนเนอร์ แหลมฉบัง จำกัด (MRCD)", "short": "เอ็ม อาร์ ซีดี คอนเทนเนอร์ แหลมฉบัง (MRCD)", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-263-589-92", "vs": "no"},
+  "TP-070":{"name": "โมเดิร์น ดีโพท์ แอนด์ ทรานสปอร์ต จำกัด", "short": "โมเดิร์น ดีโพท์ แอนด์ ทรานสปอร์ต", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "033-000-697, 038-340-301-3, 038-401-313", "hours": "จ–ส 07:00–17:00", "pid": "ChIJJePSaurHAjER74k0A1U5M-g", "gname": "LID1 (Laemchabang Inter Depot & Transport) เรียกกันว่า Modern Yard", "alias": "LID1 (Laemchabang Inter Depot & Transport) เรียกกันว่า Modern Yard", "vs": "maybe"},
+  "TP-073":{"name": "สิงหมาส ไทย โลจิสติกส์ จำกัด", "short": "สิงหมาส ไทย โลจิสติกส์", "type": "ลานตู้ / Logistics", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-761-053-6", "vs": "no"},
+  "TP-074":{"name": "ดีดี คอนเทนเนอร์ จำกัด", "short": "ดีดี คอนเทนเนอร์", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-760-900, 081-940-3842", "vs": "no"},
+  "TP-097":{"name": "เอส.ซี.เอส. ยาร์ด จำกัด (S.C.S. Yard)", "short": "เอส.ซี.เอส. ยาร์ด (S.C.S. Yard)", "type": "ลานตู้ / Yard", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-768-344, 038-768-345-7, 01-942-3537", "hours": "จ–ส 08:00–17:00", "pid": "ChIJDQfyFrK5AjERX1zDNUweo9o", "gname": "S.C.S. Yard", "alias": "S.C.S. Yard", "vs": "ok"},
+  "GM-01":{"name": "Evergreen ECD1", "short": "Evergreen ECD1", "type": "ลานตู้ / Depot", "location": "หนองขาม ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "081-835-7894", "hours": "เปิด 24 ชม.", "pid": "ChIJ2esecvHHAjERsMxTsEgvrPk", "gname": "Evergreen ECD1", "vs": "ok"},
+  "GM-02":{"name": "CMA CGM (CCIS1)", "short": "CMA CGM (CCIS1)", "type": "ลานตู้ / Depot", "location": "หนองขาม ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "033-030-667", "hours": "จ–ส 07:00–19:00", "pid": "ChIJVc3AVxi5AjERIQrDkQGDMn0", "gname": "CMA CGM (CCIS1)", "alias": "CCIS CCIS1 ซีเอ็มเอ", "vs": "ok"},
+  "GM-03":{"name": "ลานตู้ KCD Cosco", "short": "ลานตู้ KCD Cosco", "type": "ลานตู้ / Depot", "location": "ทุ่งสุขลา ศรีราชา", "city": "จังหวัดชลบุรี", "hours": "จ–ส 08:00–19:00", "pid": "ChIJUV6JoiC3AjER5Z-plyfdwJE", "gname": "ลานตู้ KCD Cosco", "alias": "KCD Cosco", "vs": "ok"},
+  "GM-04":{"name": "ลานตู้ KSP DEPOT", "short": "ลานตู้ KSP DEPOT", "type": "ลานตู้ / Depot", "location": "บางละมุง", "city": "จังหวัดชลบุรี", "phone": "038-196-307", "hours": "จ–ส 08:00–16:50", "pid": "ChIJ29e6Ily5AjERCl4soNT1vz4", "gname": "ลานตู้ KSP DEPOT", "vs": "ok"},
+  "GM-05":{"name": "ลาน MPJ ชลบุรี", "short": "ลาน MPJ ชลบุรี", "type": "ลานตู้ / Depot", "location": "หนองขาม ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "084-088-0668", "hours": "จ–ส 07:00–21:00", "pid": "ChIJHdaFUBu4AjER81CwBlUNlUY", "gname": "ลาน MPJ ชลบุรี", "vs": "ok"},
+  "GM-06":{"name": "MTD PTH (Medlog Thai Depot สาขาปิ่นทอง)", "short": "MTD PTH (Medlog Thai Depot สาขาปิ่นทอง)", "type": "ลานตู้ / Depot", "location": "หนองขาม ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "095-210-1888", "hours": "จ–ส 07:00–20:00", "pid": "ChIJTz-PWnnIAjERfhp8FbaYXUw", "gname": "MTD PTH (Medlog Thai Depot สาขาปิ่นทอง)", "vs": "ok"},
+  "GM-07":{"name": "TIFFA Logistics Center", "short": "TIFFA Logistics Center", "type": "ลานตู้ / Depot", "location": "ลำปลาทิว ลาดกระบัง", "city": "กรุงเทพมหานคร", "phone": "02-013-8700", "hours": "จ–ส 08:00–17:00", "pid": "ChIJgwOWEwBnHTEReEsYMuqd1ZM", "gname": "TIFFA Logistics Center", "vs": "ok"},
+  "GM-08":{"name": "CIMC ลาดกระบัง", "short": "CIMC ลาดกระบัง", "type": "ลานตู้ / Depot", "location": "ทับยาว ลาดกระบัง", "city": "กรุงเทพมหานคร", "phone": "02-105-4782", "hours": "จ–ส 08:00–21:00", "pid": "ChIJewtr1PxpHTERdTyHZZ1d_qc", "gname": "CIMC ลาดกระบัง", "alias": "CIMC LKB", "vs": "ok"},
+  "GM-09":{"name": "CIMC ลาน 2 (ศรีราชา)", "short": "CIMC ลาน 2 (ศรีราชา)", "type": "ลานตู้ / Depot", "location": "บึง ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "033-004-484", "hours": "เปิดทุกวัน 08:00–19:00", "pid": "ChIJO8EHwFG5AjERbHWkGdy6u8g", "gname": "CIMC ลาน 2 (ศรีราชา)", "vs": "ok"},
+  "GM-10":{"name": "SR Depot ลาดกระบัง", "short": "SR Depot ลาดกระบัง", "type": "ลานตู้ / Depot", "location": "คลองสามประเวศ ลาดกระบัง", "city": "กรุงเทพมหานคร", "phone": "02-360-9472", "hours": "เปิดทุกวัน 06:00–17:00", "pid": "ChIJ0937sFdmHTERAS2aicmoeNg", "gname": "SR Depot ลาดกระบัง", "alias": "SR DEPOT เอสอาร์", "vs": "ok"},
+  "GM-11":{"name": "SYL Container and Service", "short": "SYL Container and Service", "type": "ลานตู้ / Depot", "location": "คลองสามประเวศ ลาดกระบัง", "city": "กรุงเทพมหานคร", "phone": "081-991-4789", "hours": "เปิด 24 ชม.", "pid": "ChIJfT1AZE1nHTERLTeVF--Z2eg", "gname": "SYL Container and Service", "vs": "ok"},
+  "GM-12":{"name": "Wintech 2002 Yard", "short": "Wintech 2002 Yard", "type": "ลานตู้ / Depot", "location": "คลองสามประเวศ ลาดกระบัง", "city": "กรุงเทพมหานคร", "phone": "083-789-6193", "hours": "เปิดทุกวัน 08:00–17:00", "pid": "ChIJcbCOK8tnHTERJY7Q-Vy7iaA", "gname": "Wintech 2002 Yard", "vs": "ok"},
+  "GM-13":{"name": "The Container", "short": "The Container", "type": "ลานตู้ / Depot", "location": "ทับยาว ลาดกระบัง", "city": "กรุงเทพมหานคร", "phone": "02-360-6170", "hours": "จ–ศ 08:30–17:30", "pid": "ChIJK1lR2JxoHTERJCjuLm1k0QQ", "gname": "The Container", "vs": "ok"},
+  "GM-14":{"name": "S.Y.T. Container Laem Chabang", "short": "S.Y.T. Container Laem Chabang", "type": "ลานตู้ / Depot", "location": "ทุ่งสุขลา ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "038-401-377", "hours": "จ–ส 08:00–21:00", "pid": "ChIJgRAiu1K4AjERrn6U89XAksE", "gname": "S.Y.T. Container Laem Chabang", "vs": "ok"},
+  "GM-15":{"name": "Advance Container Service (ACS)", "short": "Advance Container Service (ACS)", "type": "ลานตู้ / Depot", "location": "หนองขาม ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "038-760-096", "hours": "จ–ส 08:00–17:00", "pid": "ChIJUdbS36-5AjERWRKoKjgLc6Q", "gname": "Advance Container Service (ACS)", "vs": "ok"},
+  "GM-16":{"name": "ลานตู้เซ็นทรัล คอนเทนเนอร์ เวิลด์ (LCB)", "short": "ลานตู้เซ็นทรัล คอนเทนเนอร์ เวิลด์ (LCB)", "type": "ลานตู้ / Depot", "location": "ทุ่งสุขลา ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "038-400-255", "hours": "จ–ส 07:00–17:00", "pid": "ChIJ01yQLIi5AjERovAZYh8i1LQ", "gname": "ลานตู้เซ็นทรัล คอนเทนเนอร์ เวิลด์ (LCB)", "alias": "CENTRAL เซ็นทรัล", "vs": "ok"},
+  "GM-17":{"name": "ดีเดโป คอนเทนเนอร์ เซอร์วิสซ์ (D Depot บึง)", "short": "ดีเดโป คอนเทนเนอร์ เซอร์วิสซ์ (D Depot บึง)", "type": "ลานตู้ / Depot", "location": "บึง ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "033-081-696", "hours": "จ–ส 08:00–17:00", "pid": "ChIJNwriTRbHAjER8fSMFDPxV_0", "gname": "ดีเดโป คอนเทนเนอร์ เซอร์วิสซ์ (D Depot บึง)", "alias": "D Depot ดีเดโป", "vs": "ok"},
+  "GM-18":{"name": "Greating Fortune Container Service (GFLCB1)", "short": "Greating Fortune Container Service (GFLCB1)", "type": "ลานตู้ / Depot", "location": "ทุ่งสุขลา ศรีราชา", "city": "จังหวัดชลบุรี", "hours": "จ–ส 08:00–17:00", "pid": "ChIJY4dqTay5AjERu9aBvY2jRB0", "gname": "Greating Fortune Container Service (GFLCB1)", "alias": "GF GF-1 G-Fortune", "vs": "ok"},
+  "GM-19":{"name": "Greating Fortune Container Service (LCB 4)", "short": "Greating Fortune Container Service (LCB 4)", "type": "ลานตู้ / Depot", "location": "ทุ่งสุขลา ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "038-199-567", "hours": "จ–ส 08:30–17:30", "pid": "ChIJ6-KCnTC5AjERKjUrJXbgixw", "gname": "Greating Fortune Container Service (LCB 4)", "alias": "GF GF-4 G-Fortune", "vs": "ok"},
+  "GM-20":{"name": "Smart Logistics Service LCB-2", "short": "Smart Logistics Service LCB-2", "type": "ลานตู้ / Depot", "location": "หนองขาม ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "033-047-337", "hours": "จ–ส 08:00–17:00", "pid": "ChIJk5_8LHvHAjERqv_gGwsiAdI", "gname": "Smart Logistics Service LCB-2", "vs": "ok"},
+  "GM-21":{"name": "MCT Depot", "short": "MCT Depot", "type": "ลานตู้ / Depot", "location": "หนองขาม ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "093-240-9763", "hours": "จ–ส 08:00–17:00", "pid": "ChIJN38fq1-3AjERLU0UPM-khxk", "gname": "MCT Depot", "vs": "ok"},
+  "GM-22":{"name": "ThaiReefer-ReeGen Service Container Yard ลาดกระบัง", "short": "ThaiReefer-ReeGen Service Container Yard ลาดกระบัง", "type": "ลานตู้ / Depot", "location": "คลองสามประเวศ ลาดกระบัง", "city": "กรุงเทพมหานคร", "phone": "092-282-1365", "hours": "จ–ส 08:00–17:00", "pid": "ChIJK0rmbd1nHTERoy4qgrRxvSU", "gname": "ThaiReefer-ReeGen Service Container Yard ลาดกระบัง", "vs": "ok"}
 };
 let FACILITIES = JSON.parse(JSON.stringify(DEFAULT_FACILITIES));
 let REMOTE_LOCATIONS = {};
@@ -250,6 +323,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const PORT_ZONES=Object.keys(PORT_TYPES);
 const ICD_ZONES=Object.keys(FACILITIES);
+const ICD_ACTIVE=ICD_ZONES.filter(z=>!FACILITIES[z].legacy);
 const ALL_ZONES=[...PORT_ZONES,...ICD_ZONES];
 let cur='A0',curP='A0',curM='';
 let cloudReports=[];
@@ -321,18 +395,21 @@ function renderPanel(z,p){
   if(isICD(z)){
     const f=FACILITIES[z],m=REMOTE_LOCATIONS[z]||{};
     $('banner'+p).innerHTML=esc(f.short)+' <span class="badge">ICD / Depot</span>';
-    const hours=m.is24h?'เปิด 24 ชั่วโมง':(m.hoursOpen&&m.hoursClose?esc(m.hoursOpen)+' - '+esc(m.hoursClose):'');
-    const docs=(m.documents||[]).length?'<ul>'+m.documents.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'<span>ยังไม่มีข้อมูล</span>';
-    const map=/^https?:\/\//.test(m.mapUrl||'')?'<br><a href="'+esc(m.mapUrl)+'" target="_blank" rel="noopener">เปิดแผนที่</a>':'';
-    const contact=(m.contactPlace||m.contactPhone||m.contactNote)?'<span>'+[m.contactPlace&&esc(m.contactPlace),m.contactPhone&&'โทร <a href="tel:'+esc(String(m.contactPhone).replace(/[^0-9+]/g,''))+'">'+esc(m.contactPhone)+'</a>',m.contactNote&&esc(m.contactNote)].filter(Boolean).join('<br>')+'</span>':'<span>ยังไม่มีข้อมูล</span>';
+    const none='<span>ยังไม่มีข้อมูล</span>';
+    const hours=m.is24h?'เปิด 24 ชั่วโมง':(m.hoursOpen&&m.hoursClose?esc(m.hoursOpen)+' - '+esc(m.hoursClose):(f.hours?esc(f.hours):''));
+    const docs=(m.documents||[]).length?'<ul>'+m.documents.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':none;
+    const ph=phoneHTML(m.contactPhone||f.phone);
+    const contact=(m.contactPlace||ph||m.contactNote)?'<span>'+[m.contactPlace&&esc(m.contactPlace),ph&&'โทร '+ph,m.contactNote&&esc(m.contactNote)].filter(Boolean).join('<br>')+'</span>':none;
+    const vs=VS[f.vs];
     $('info'+p).innerHTML=
-      (p==='M'?row('🗂️','ประเภทบริการ','<span>'+esc(f.type)+'</span>')+row('📍','พื้นที่','<span>'+esc(f.location)+'</span>')+row('📦','การบริการ','<span>'+esc(f.service)+'</span>'):'')+
-      row('🏢','ผู้ให้บริการ / ลานตู้',m.operator?'<span>'+esc(m.operator)+'</span>':'<span>ยังไม่มีข้อมูล</span>')+
-      row('📍','ที่อยู่ / จุดเข้าออก',m.address?'<span>'+esc(m.address)+map+'</span>':'<span>ยังไม่มีข้อมูล</span>')+
-      row('🕒','เวลาทำการ',hours?'<span>'+hours+'</span>':'<span>ยังไม่มีข้อมูล</span>')+
-      row('📦','จุดติดต่อ / คืนตู้',contact)+
+      (p==='M'?row('🗂️','ประเภทบริการ','<span>'+esc(f.type)+'</span>')+row('📍','พื้นที่','<span>'+esc([f.location,f.city].filter(Boolean).join(' · '))+'</span>')+(f.service?row('📦','การบริการ','<span>'+esc(f.service)+'</span>'):''):'')+
+      row('🏢','ผู้ให้บริการ / ลานตู้',m.operator?'<span>'+esc(m.operator)+'</span>':none)+
+      row('📍','ที่อยู่ / จุดเข้าออก',m.address?'<span>'+esc(m.address)+'</span>':none)+
+      row('🕒','เวลาทำการ',hours?'<span>'+hours+'</span>':none)+
+      row('📞','จุดติดต่อ / คืนตู้',contact)+
       row('📄','เอกสารที่ต้องเตรียม',docs)+
-      row('🔎','แหล่งข้อมูล / ตรวจสอบล่าสุด',m.source||m.checked?'<span>'+esc(m.source||'-')+(m.checked?' · ตรวจสอบเมื่อ '+esc(m.checked):'')+'</span>':'<span>ยังไม่มีข้อมูล</span>');
+      row('🔎','แหล่งข้อมูล / ตรวจสอบล่าสุด',m.source||m.checked?'<span>'+esc(m.source||'-')+(m.checked?' · ตรวจสอบเมื่อ '+esc(m.checked):'')+'</span>':(vs?'<span>'+esc(vs)+' · ข้อมูลอาจเปลี่ยนแปลง ควรโทรยืนยัน</span>':none))+
+      row('🗺️','แผนที่','<span><a class="mapbtn" href="'+esc(mapsUrl(f,m))+'" target="_blank" rel="noopener">เปิด Google Maps</a></span>');
   }else{
     const d=getPortDetails(z),h=d.hours||{},rc=d.returnContact||{},o=openState(h);
     const nm=String(d.short||d.name||'').trim();
@@ -372,10 +449,55 @@ function list(z,p){
   btn.textContent=open?'ซ่อนรายงานเก่า':'ดูรายงานอีก '+(Math.min(a.length,REP_MAX)-REP_LIMIT)+' รายการ';
   btn.onclick=()=>{repOpen[p]={z,open:!open};list(z,p);};
 }
+const VS={ok:'พบใน Google Maps',maybe:'ชื่อใกล้เคียงใน Google',no:'ยังไม่พบใน Google Maps'};
+function phoneHTML(s){
+  return String(s||'').split(/\s*[,/]\s*/).map(x=>x.trim()).filter(x=>x&&x!=='ไม่มี').slice(0,3)
+    .map(x=>/^0\d{1,2}-\d{3}-\d{4}$/.test(x)?'<a href="tel:'+x.replace(/\D/g,'')+'">'+esc(x)+'</a>':esc(x)).join(', ');
+}
+function mapsUrl(f,m){
+  const r=(m&&m.mapUrl)||'';
+  if(/^https?:\/\//.test(r))return r;
+  if(f.pid)return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(f.gname||f.short||f.name)+'&query_place_id='+encodeURIComponent(f.pid);
+  return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent([f.short||f.name,f.location,f.city].filter(Boolean).join(' '));
+}
+const DEPOT_PAGE=12;
+let depotQ='',depotShown=DEPOT_PAGE,_dix=null;
+function norm(s){return String(s==null?'':s).toLowerCase().replace(/[\s\-_.,()\/]+/g,' ').trim();}
+function depotIndex(){
+  if(_dix&&_dix.f===FACILITIES)return _dix.a;
+  const a=ICD_ACTIVE.map(z=>{const f=FACILITIES[z];return {z,h:norm([f.name,f.short,f.gname,f.alias,f.type,f.location,f.city,f.phone].join(' '))+' '+String(f.phone||'').replace(/\D/g,'')};});
+  _dix={a,f:FACILITIES};return a;
+}
+function searchDepots(q){
+  const toks=norm(q).split(' ').filter(Boolean),digits=String(q).replace(/\D/g,'');
+  return depotIndex().filter(d=>toks.every(t=>d.h.includes(t))||(digits.length>=4&&d.h.includes(digits))).map(d=>d.z);
+}
+function lastAny(z){const a=zoneReports(z),r=a[a.length-1];return r&&Date.now()-r.t<DAY?r:null;}
+function depotCard(z){
+  const f=FACILITIES[z],m=REMOTE_LOCATIONS[z]||{},r=lastAny(z),fresh=r&&Date.now()-r.t<STALE;
+  const ph=phoneHTML(m.contactPhone||f.phone);
+  const hours=m.is24h?'เปิด 24 ชั่วโมง':(m.hoursOpen&&m.hoursClose?m.hoursOpen+' - '+m.hoursClose:(f.hours||''));
+  const vs=VS[f.vs];
+  return '<article class="depot" data-z="'+esc(z)+'" data-st="'+(fresh?esc(r.status):'')+'">'+
+    '<div class="d-top"><h4>'+esc(f.short||f.name)+'</h4>'+(vs?'<span class="vbadge '+esc(f.vs)+'">'+esc(vs)+'</span>':'')+'</div>'+
+    '<p>'+esc(f.type)+'</p><p>📍 '+esc([f.location,f.city].filter(Boolean).join(' · '))+'</p>'+
+    (ph?'<p>📞 '+ph+'</p>':'')+(hours?'<p>🕒 '+esc(hours)+'</p>':'')+
+    '<div class="depot-foot"><span class="statusline'+(r?'':' muted')+'">'+(r?dotStatus(r)+(fresh?'':' · เกิน '+STALE_HOURS+' ชม.'):'ยังไม่มีรายงานใน 24 ชม.')+'</span></div>'+
+    '<div class="d-actions"><button type="button" class="secondary d-view">ดูรายงานล่าสุด</button><button type="button" class="secondary d-rep">รายงานลานนี้</button>'+
+    '<a class="secondary d-map" href="'+esc(mapsUrl(f,m))+'" target="_blank" rel="noopener">เปิด Google Maps</a></div></article>';
+}
 function renderDepots(){
-  const makeCard=z=>{const f=FACILITIES[z],r=latest(z);return `<article class="depot" data-z="${esc(z)}" data-st="${r?esc(r.status):''}"><h4>${esc(f.short||f.name)}</h4><p>${esc(f.type)}</p><p>${esc(f.location)}</p><div class="depot-foot"><span class="statusline${r?'':' muted'}">${dotStatus(r)}</span><button type="button" class="secondary d-btn">ดูรายงานล่าสุด ›</button></div></article>`;};
-  $('depotBangkok').innerHTML=ICD_ZONES.filter(z=>z.startsWith('ICD-BKK')).map(makeCard).join('');
-  $('depotChonburi').innerHTML=ICD_ZONES.filter(z=>z.startsWith('ICD-LCB')).map(makeCard).join('');
+  const box=$('depotResults');if(!box)return;
+  const q=depotQ.trim();let zs;
+  if(q){
+    zs=searchDepots(q).sort((a,b)=>((lastAny(b)||{}).t||0)-((lastAny(a)||{}).t||0));
+    $('depotHead').textContent=zs.length?'พบ '+zs.length+' ลาน':'ไม่พบลานที่ค้นหา ลองพิมพ์ชื่อย่อ พื้นที่ หรือเบอร์โทร';
+  }else{
+    zs=ICD_ZONES.filter(z=>lastAny(z)).sort((a,b)=>lastAny(b).t-lastAny(a).t);
+    $('depotHead').textContent=zs.length?'ลานที่มีรายงานใน 24 ชั่วโมง ('+zs.length+' ลาน) · พิมพ์ค้นหาเพื่อดูลานอื่น':'ยังไม่มีลานที่มีรายงานใน 24 ชั่วโมง · พิมพ์ชื่อลานด้านบนเพื่อค้นหาและดูข้อมูล';
+  }
+  box.innerHTML=zs.slice(0,depotShown).map(depotCard).join('');
+  const more=$('depotMore');more.hidden=zs.length<=depotShown;more.textContent='แสดงเพิ่ม (อีก '+(zs.length-depotShown)+' ลาน)';
 }
 
 const ORDER={jam:0,busy:1,clear:2};
@@ -407,9 +529,12 @@ function dots(){
 }
 
 function setupSelect(){
+  const cnt={};ICD_ACTIVE.forEach(z=>{const k=FACILITIES[z].short||FACILITIES[z].name;cnt[k]=(cnt[k]||0)+1;});
+  const opt=z=>{const f=FACILITIES[z],k=f.short||f.name;return '<option value="'+esc(z)+'">'+esc(k+(cnt[k]>1?' ('+(f.city==='กรุงเทพมหานคร'?'กทม.':'ชลบุรี')+')':''))+'</option>';};
+  const bk=ICD_ACTIVE.filter(z=>FACILITIES[z].city==='กรุงเทพมหานคร'),ch=ICD_ACTIVE.filter(z=>FACILITIES[z].city!=='กรุงเทพมหานคร');
   $('rzone').innerHTML='<optgroup label="หมวดที่ 1 · ท่าเรือแหลมฉบัง (โซนเดิม)">'+PORT_ZONES.map(z=>'<option value="'+z+'">'+z+' · '+PORT_TYPES[z]+'</option>').join('')+'</optgroup>'+
-    '<optgroup label="หมวดที่ 2 · ICD Lat Krabang (กรุงเทพมหานคร)">'+ICD_ZONES.filter(z=>z.startsWith('ICD-BKK')).map(z=>'<option value="'+z+'">'+esc(FACILITIES[z].name)+'</option>').join('')+'</optgroup>'+
-    '<optgroup label="หมวดที่ 2 · Laem Chabang &amp; Sriracha (ชลบุรี)">'+ICD_ZONES.filter(z=>z.startsWith('ICD-LCB')).map(z=>'<option value="'+z+'">'+esc(FACILITIES[z].name)+'</option>').join('')+'</optgroup>';
+    '<optgroup label="หมวดที่ 2 · ลานตู้ กรุงเทพมหานคร">'+bk.map(opt).join('')+'</optgroup>'+
+    '<optgroup label="หมวดที่ 2 · ลานตู้ ชลบุรี">'+ch.map(opt).join('')+'</optgroup>';
 }
 
 
@@ -536,8 +661,14 @@ function submitReport(){
 // Events
 $('rzone').addEventListener('change',e=>render(e.target.value));
 document.querySelectorAll('.zone').forEach(b=>b.addEventListener('click',()=>render(b.dataset.zone)));
-['depotBangkok','depotChonburi'].forEach(id=>{
-  $(id).addEventListener('click',e=>{const c=e.target.closest('.depot[data-z]');if(c)openDepot(c.dataset.z);});
+let dTimer=null;
+$('depotSearch').addEventListener('input',e=>{clearTimeout(dTimer);dTimer=setTimeout(()=>{depotQ=e.target.value;depotShown=DEPOT_PAGE;renderDepots();},150);});
+$('depotMore').addEventListener('click',()=>{depotShown+=DEPOT_PAGE;renderDepots();});
+$('depotResults').addEventListener('click',e=>{
+  const c=e.target.closest('.depot[data-z]');if(!c||e.target.closest('a'))return;
+  const z=c.dataset.z;
+  if(e.target.closest('.d-rep')){$('rzone').value=z;$('reportAnchor').scrollIntoView({behavior:'smooth',block:'start'});$('rzone').focus({preventScroll:true});}
+  else openDepot(z);
 });
 $('portTable').addEventListener('click',e=>{const tr=e.target.closest('tr[data-z]');if(tr){render(tr.dataset.z);window.scrollTo({top:0,behavior:'smooth'});}});
 $('icdTable').addEventListener('click',e=>{const tr=e.target.closest('tr[data-z]');if(tr)openDepot(tr.dataset.z);});
