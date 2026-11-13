@@ -1,0 +1,860 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#1d5fd1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>YARDTH.COM - ท่าเรือและลานตู้คอนเทนเนอร์</title>
+<style>
+:root{--ink:#0c2340;--muted:#4f6a88;--line:rgba(29,95,209,.14);--accent:#1d5fd1;--accent-d:#164aa8;--clear:#2e9e5b;--busy:#f2b632;--jam:#d64545;--none:#d9e3ee;--glass:#fff;--glass-line:#fff;--shadow:0 10px 32px rgba(22,74,168,.14)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:"IBM Plex Sans Thai","Noto Sans Thai",Tahoma,sans-serif;font-size:15px;line-height:1.5;background:#fff}
+main{max-width:1200px;margin:auto;padding:20px}
+h1{font-size:26px;margin:0;font-weight:700;line-height:1.3}h2{font-weight:700}
+.muted{color:var(--muted);font-size:13.5px;line-height:1.6}
+/* hero */
+.hero{position:relative;overflow:hidden;border-radius:26px;padding:20px 22px 18px;margin-bottom:16px;color:#fff;background:linear-gradient(135deg,#1d5fd1 0%,#2f86ee 55%,#4cc3ff 100%);border:1px solid rgba(255,255,255,.5);box-shadow:0 14px 40px rgba(29,95,209,.32)}
+.hero::before{content:"";position:absolute;right:-70px;top:-90px;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,.16)}
+.hero::after{content:"";position:absolute;left:-60px;bottom:-110px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.1)}
+.hero>*{position:relative;z-index:1}
+.hero h1{color:#fff}.hero .muted{color:#e3f0ff}
+.head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.head-actions{display:flex;align-items:center;gap:8px}
+.menu-toggle{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid #c8d8e8;background:#fff;color:var(--accent);border-radius:8px;padding:9px 12px;font:inherit;font-weight:600;cursor:pointer}
+.menu-toggle:hover,.menu-toggle[aria-expanded=true]{background:#eef6ff}
+.menu-toggle svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.system-menu{position:absolute;z-index:20;top:calc(100% + 8px);right:0;width:min(280px,calc(100vw - 56px));padding:6px;background:#fff;border:1px solid #dce8f5;border-radius:10px;box-shadow:0 10px 28px rgba(32,75,120,.14)}
+.system-menu a{display:block;padding:9px 12px;border-radius:7px;color:#315f91;text-decoration:none;font-weight:500}
+.system-menu a:hover,.system-menu a:focus-visible{background:#edf5fd;color:#245b96}
+.btn{display:inline-block;border:0;background:linear-gradient(135deg,#2f7df0,#1d5fd1);color:#fff;border-radius:14px;padding:10px 18px;font:inherit;font-weight:600;cursor:pointer;text-decoration:none;box-shadow:0 6px 16px rgba(29,95,209,.28)}
+.btn:hover{background:linear-gradient(135deg,#2a74e8,#164aa8)}
+.hero .btn{background:#fff;color:var(--accent);box-shadow:0 6px 16px rgba(10,40,110,.25)}.hero .btn:hover{background:#eef5ff}
+.summary{display:flex;flex-wrap:wrap;gap:6px 20px;align-items:center;padding:10px 16px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);border-radius:14px;font-size:14px;color:#fff}
+.summary span{display:inline-flex;align-items:center}.summary .muted{color:#e6f1ff}
+/* glass cards */
+.layout{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(280px,.8fr);gap:16px;align-items:start}
+.card{background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);border:1px solid var(--glass-line);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.card{background:rgba(255,255,255,.93)}}
+.cardhead{padding:16px 18px 2px}.cardhead h2{font-size:18px;margin:0 0 4px}
+/* map */
+.map{position:relative;margin:10px 14px 8px;aspect-ratio:531/300;min-width:600px;border:1px solid rgba(255,255,255,.9);border-radius:16px;overflow:hidden;background:#e8eff7}
+.sea{position:absolute;inset:0;background:#b7d8f4;clip-path:polygon(0 43%,8% 46%,16% 39%,20% 31%,27% 66%,39% 66%,39% 54%,43% 54%,43% 66%,52% 66%,52% 45%,55% 45%,55% 72%,66% 72%,66% 24%,71% 24%,71% 72%,79% 72%,79% 22%,100% 22%,100% 100%,0 100%)}
+.ship{position:absolute;left:20.3%;top:28.3%;width:7%;height:33.3%;background:#4a5a70;clip-path:polygon(0 8%,100% 0,100% 100%,0 100%);display:grid;place-items:center;writing-mode:vertical-rl;color:#fff;font-size:12px;font-weight:600;letter-spacing:2px}
+.maphint{position:absolute;left:1.5%;top:3%;width:26.5%;padding:7px 10px;border-radius:12px;background:rgba(255,255,255,.93);border:1px solid rgba(29,95,209,.2);box-shadow:0 4px 14px rgba(20,70,150,.12);font-size:12.5px;line-height:1.45;color:var(--ink);z-index:2;pointer-events:none}
+.maphint b{display:block;font-size:13.5px;color:var(--accent)}
+.zone{position:absolute;display:grid;place-items:center;background:var(--none);color:#2b3a47;font-family:inherit;font-size:13px;font-weight:700;border:2px solid #fff;border-radius:6px;cursor:pointer;padding:2px;min-width:28px;min-height:24px}
+.zone[data-status=clear]{background:var(--clear);color:#fff}
+.zone[data-status=busy]{background:var(--busy);color:#2b2208}
+.zone[data-status=jam]{background:var(--jam);color:#fff}
+.zone:hover{outline:2px solid var(--ink);z-index:3}
+.zone:focus-visible{outline:3px solid var(--ink);z-index:3}
+.zone.sel{outline:3px solid var(--ink);z-index:3}
+.a0{left:31%;top:6%;width:12.3%;height:6%}.b1{left:43%;top:12.7%;width:5.6%;height:15%}.a1{left:29.2%;top:19.3%;width:5.3%;height:7%}.a2{left:28.3%;top:26.7%;width:6.4%;height:13.3%}.a3{left:28.3%;top:40%;width:7.2%;height:7%}.a4{left:29.8%;top:47.7%;width:6.6%;height:5.7%}.a5{left:28.5%;top:55%;width:9%;height:9.3%;font-size:20px}
+.b2{left:43.4%;top:28.3%;width:5.6%;height:7%}.b3{left:43.9%;top:36.3%;width:5.6%;height:7.4%}.b4{left:44.6%;top:44.7%;width:5.6%;height:7.6%}.b5{left:45.2%;top:53.3%;width:6%;height:10%}.c0{left:58.4%;top:13.7%;width:22.6%;height:7.3%;transform:rotate(13deg);border-radius:12px}.c1{left:58.8%;top:22.3%;width:6.6%;height:15.3%;transform:rotate(13deg)}.c2{left:56.6%;top:37.7%;width:6.6%;height:15.7%;transform:rotate(13deg)}.c3{left:54.1%;top:53.3%;width:6.6%;height:16%;transform:rotate(13deg)}.d1{left:73.7%;top:22.3%;width:5.1%;height:15%;transform:rotate(12deg)}.d2{left:72%;top:37.8%;width:5.1%;height:15.7%;transform:rotate(12deg)}.d3{left:69.8%;top:54%;width:5.1%;height:16%;transform:rotate(12deg)}
+.arrow{position:absolute;left:7.9%;top:68.3%;width:30.7%;height:11.7%;display:grid;place-items:center;color:#1d4f86;background:#a3c9ec;font-weight:bold;font-size:12px;white-space:nowrap;clip-path:polygon(0 0,86% 0,100% 50%,86% 100%,0 100%)}.wave{position:absolute;left:26.4%;top:86%;width:51%;height:2px;background:#33495a;transform-origin:0 50%;transform:rotate(6.8deg)}.wavelabel{position:absolute;left:37.5%;top:93%;font-size:12px;color:#1d4f86}
+.mapwrap{overflow-x:auto}
+.mapnote{padding:0 18px 4px;color:var(--muted);font-size:12.5px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;padding:6px 18px 16px;color:var(--ink);font-size:13px}
+.legend span{display:flex;align-items:center;gap:6px}.swatch{width:13px;height:13px;border-radius:3px;display:inline-block}
+/* selected spot */
+.details{padding:18px}
+.selhead{display:flex;align-items:center;gap:14px;margin:0 0 12px}
+.selbig{flex:none;min-width:64px;height:64px;padding:0 12px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(135deg,#2f7df0,#1d5fd1);color:#fff;font-size:28px;font-weight:700;letter-spacing:.5px;box-shadow:0 6px 16px rgba(29,95,209,.3)}
+.selbig[data-st=clear]{background:var(--clear)}.selbig[data-st=busy]{background:var(--busy);color:#2b2208}.selbig[data-st=jam]{background:var(--jam)}
+.seltext{min-width:0}.selkicker{font-size:12.5px;color:var(--muted);font-weight:600}
+.selhead h2{font-size:22px;margin:0;line-height:1.25}
+.selstatus{font-size:13.5px;color:var(--muted);margin-top:2px}
+.banner{padding:4px 0 4px 12px;border-left:4px solid var(--accent);font-weight:700;font-size:16px;margin:0 0 12px;line-height:1.5}
+.badge{display:inline-block;padding:0 8px;border:1px solid var(--line);border-radius:6px;font-size:12px;font-weight:400;margin-left:8px;color:var(--muted);vertical-align:middle;background:rgba(255,255,255,.7)}
+.details .btn{width:100%;text-align:center;margin-bottom:6px}
+.row{display:block;padding:10px 0;border-bottom:1px solid var(--line)}
+.row>div:first-child{display:none}
+.row strong{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:2px}
+.row span,.row li{font-size:14.5px;color:var(--ink);line-height:1.55}
+.row ul{margin:0;padding-left:18px}
+.row a{color:var(--accent)}
+.note{margin-top:14px;padding:10px 12px;background:rgba(255,255,255,.65);border-left:3px solid #8fb4ee;border-radius:8px;color:#3a5a85;font-size:12.5px;line-height:1.65}
+.empty{padding:10px 0;color:var(--muted);font-size:13px}
+/* latest reports (compact, collapsed) */
+.reports{margin:14px 0 6px;padding-bottom:6px;border-bottom:1px solid var(--line)}.rephead{display:flex;justify-content:space-between;align-items:baseline}.rephead h3{font-size:15px;margin:0}.reports .secondary{width:100%;margin-top:10px}
+.rep{padding:8px 0;border-bottom:1px solid var(--line);font-size:14px;line-height:1.45}.rep:last-child{border-bottom:0}
+.rep-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rep-wait{color:var(--muted);font-size:13.5px}
+.rep-time{margin-left:auto;color:var(--muted);font-size:12.5px;white-space:nowrap}
+.rep-note{color:var(--muted);font-size:13px;margin-top:1px;padding-left:16px;overflow-wrap:anywhere}
+#replist.scroll,#replistM.scroll{max-height:320px;overflow-y:auto;padding-right:4px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.dot.clear{background:var(--clear)}.dot.busy{background:var(--busy)}.dot.jam{background:var(--jam)}.dot.none{background:#b3bcc4}
+/* sections */
+.section{margin-top:16px}.section-head{padding:16px 18px 6px}.section-head h2{font-size:18px;margin:0 0 4px}.section-body{padding:6px 18px 18px}
+.subgroup{margin-top:14px}.subgroup h3{font-size:15px;margin:0 0 8px}
+.depot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.depot{display:flex;flex-direction:column;gap:2px;border:1px solid rgba(255,255,255,.9);border-left:4px solid #b4c6dd;border-radius:14px;padding:12px 14px;background:rgba(255,255,255,.78);cursor:pointer;min-width:0}
+.depot:hover{background:#fff}
+.depot[data-st=jam]{border-left-color:var(--jam)}.depot[data-st=busy]{border-left-color:var(--busy)}.depot[data-st=clear]{border-left-color:var(--clear)}
+.depot h4{font-size:15px;margin:0 0 2px;line-height:1.4}.depot p{font-size:13px;margin:0;color:var(--muted);line-height:1.5}
+.depot-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:8px;border-top:1px solid var(--line)}
+.statusline{font-size:13px}
+.d-btn{padding:6px 12px;font-size:13px;white-space:nowrap}
+.secondary{border:1px solid rgba(29,95,209,.35);background:rgba(255,255,255,.85);color:var(--accent);border-radius:12px;padding:7px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.secondary:hover{background:#eaf2ff}
+.dash{margin-top:16px;padding:18px}.dash h2{font-size:18px;margin:0 0 4px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}
+.kpi{padding:10px 12px;border:1px solid rgba(255,255,255,.9);background:rgba(255,255,255,.72);border-radius:14px}.kpi b{display:block;font-size:20px}.kpi span{font-size:13px;color:var(--muted)}
+.bar{display:flex;height:10px;border-radius:6px;overflow:hidden;background:rgba(29,95,209,.1);margin-bottom:12px}.bar i{display:block}
+.bar .clear{background:var(--clear)}.bar .busy{background:var(--busy)}.bar .jam{background:var(--jam)}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--muted);font-weight:600;font-size:13px}
+tbody tr{cursor:pointer}tbody tr:hover{background:rgba(255,255,255,.7)}
+tr.flash{animation:flash 2.5s ease-out}@keyframes flash{0%,55%{background:#b9d8ff}100%{background:transparent}}
+/* report form */
+.report{margin-top:16px;display:block;max-width:640px}.report .card{padding:18px}.report h2{font-size:18px;margin:0 0 4px}
+.report-goal{margin:14px 0 8px;padding:12px 14px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.9);border-radius:14px}.goal-top{display:flex;justify-content:space-between;gap:12px;align-items:center}.goal-top strong{font-size:18px;color:var(--accent);font-variant-numeric:tabular-nums}.goal-track{height:8px;border-radius:8px;background:rgba(29,95,209,.12);overflow:hidden;margin:8px 0 5px}.goal-track i{display:block;height:100%;width:0;background:linear-gradient(90deg,#2f7df0,#4cc3ff);border-radius:8px;transition:width .25s}.report-goal small{font-size:12px;color:var(--muted)}
+label{display:block;font-size:14px;font-weight:600;margin:14px 0 5px}
+select,input,textarea{width:100%;font:inherit;font-size:15px;padding:10px 12px;border:1px solid rgba(29,95,209,.28);border-radius:12px;background:rgba(255,255,255,.85);color:var(--ink)}
+select:focus,input:focus,textarea:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.opts label{margin:0;font-weight:400;border:1px solid rgba(29,95,209,.28);background:rgba(255,255,255,.85);border-radius:12px;padding:11px 6px;text-align:center;cursor:pointer;font-size:14px}
+.opts input{display:none}.opts input:checked+span{font-weight:700}
+.opts label:has(input:checked){border:2px solid var(--accent);background:#e6f0ff}
+button.go{margin-top:14px;width:100%;padding:13px;border:0;border-radius:14px;background:linear-gradient(135deg,#2f7df0,#1d5fd1);color:#fff;font:inherit;font-weight:600;cursor:pointer;box-shadow:0 6px 16px rgba(29,95,209,.28)}button.go:hover{background:linear-gradient(135deg,#2a74e8,#164aa8)}
+button.go.sent{background:var(--clear);box-shadow:0 6px 16px rgba(46,158,91,.3)}
+.waitrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:stretch}.waitrow .opts{grid-template-columns:repeat(2,auto)}.waitrow .opts label{display:flex;align-items:center;padding:0 16px}
+.msg{margin-top:10px;font-size:14px;min-height:18px}.err{color:#b3261e}.ok{color:#17703d}
+.sync-state{font-size:12.5px;color:var(--muted)}.sync-state.online{color:#17703d}.sync-state.offline{color:#8a5a00}
+
+/* customs code search */
+.code-search{margin-top:16px}.search-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.search-tools input{flex:1 1 260px;min-width:180px}.code-columns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.code-side{min-width:0;border:1px solid rgba(29,95,209,.16);background:rgba(255,255,255,.55);border-radius:16px;overflow:hidden}
+.code-side h3{margin:0;padding:11px 14px;background:rgba(29,95,209,.09);font-size:15px}
+.code-main{padding:8px 14px;color:var(--accent);font-weight:700;border-bottom:1px solid var(--line)}
+.code-row{display:grid;grid-template-columns:58px minmax(0,1fr);gap:9px;padding:8px 12px;border-bottom:1px solid var(--line);align-items:start}
+.code-row:last-child{border-bottom:0}.code-num{font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+.code-row mark{background:#fff0b8;color:inherit;border-radius:3px;padding:0 2px}
+.code-count{font-size:12.5px;color:var(--muted);margin-top:8px}
+@media(max-width:680px){.code-columns{grid-template-columns:1fr}.search-tools .secondary{width:100%}}
+/* modal */
+.modal{position:fixed;inset:0;z-index:1000;background:rgba(12,35,64,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:grid;place-items:center;padding:18px}
+.modal-box{width:min(460px,100%);max-height:85vh;overflow:auto;background:rgba(255,255,255,.97);padding:22px;border-radius:22px;box-shadow:0 20px 60px rgba(12,35,64,.3)}
+.modal-box.wide{width:min(560px,100%)}.modal-box h2{margin:0 0 8px;font-size:20px}
+.mhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}.mhead h2{margin:0;font-size:18px;line-height:1.4}
+#bannerM{display:none}#depotModal .btn{width:100%;margin:12px 0 4px}
+.dsearch input{width:100%;padding:12px 14px;font-size:16px;border-radius:14px}
+.dhead{margin:10px 2px 8px}
+.d-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.vbadge{flex:none;font-size:11.5px;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.vbadge.ok{background:#d9f2e1;color:#18613a}.vbadge.maybe{background:#fff1cc;color:#7a5600}.vbadge.no{background:#e7eaf0;color:#51627a}
+.d-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.d-actions .secondary{flex:1 1 auto;text-align:center;text-decoration:none;display:inline-block}
+.depot p a{color:var(--accent)}
+.dmore{width:100%;margin-top:12px}
+.row a.mapbtn{display:inline-block;margin-top:4px;padding:8px 14px;background:var(--accent);color:#fff;border-radius:12px;text-decoration:none;font-weight:600}
+[hidden]{display:none!important}
+@media(min-width:821px){.details{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}}
+@media(max-width:820px){main{padding:14px}.layout{grid-template-columns:1fr}.depot-grid{grid-template-columns:1fr}}
+@media(max-width:600px){h1{font-size:22px}.hero{padding:16px}.kpis{grid-template-columns:repeat(2,1fr)}.opts{gap:5px}.opts label{font-size:13px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+/* Modern flat theme */
+:root{--ink:#172b4d;--muted:#5e6c84;--line:#dce8f5;--accent:#3478c8;--accent-d:#2867ad;--glass:#fff;--glass-line:#e2ebf5;--shadow:none}
+body{background:#fff}
+.hero{border:1px solid #dceafb;border-radius:12px;background:#eaf4ff;color:var(--ink);box-shadow:none}
+.hero{overflow:visible}
+.hero::before,.hero::after{display:none}
+.head{position:relative;z-index:2}
+.hero h1{color:#245b96}.hero .muted,.summary .muted{color:#58718d}
+.btn,button.go{background:#4b8bd2;border-radius:8px;box-shadow:none}
+.btn:hover,button.go:hover{background:#3478c8}
+.hero .btn{border-radius:8px;box-shadow:none}
+.summary{border:1px solid #d5e6f8;border-radius:8px;background:#f5faff;color:var(--ink)}
+.card{background:#fff;border:1px solid #e4e9f0;border-radius:12px;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.layout>.card:first-child,#portDashboard{background:#f8fbff;border-color:#dce9f7}
+.layout>.card:first-child .cardhead h2,#portDashboard h2{color:#386fa9}
+.details{background:#fff}
+.map{border-color:#d8e0ea;border-radius:10px}
+.maphint{border-radius:8px;box-shadow:none}
+.selbig{background:#4b8bd2;border-radius:10px;box-shadow:none}
+.badge,.note,.report-goal,.kpi{border-radius:8px}
+.note{background:#f6f8fb}
+.report .card{background:#f7fbff;border-color:#dceafb}
+.report-goal{border-color:#dfebf8;background:#edf6ff}
+#icdDashboard{background:#f7fbff;border-color:#dce9f7}
+#icdDashboard h2{color:#386fa9}
+#icdDepots{background:#fbfdff;border-color:#dce9f7}
+#icdDepots .section-head{background:#f0f7ff}
+.depot{border:1px solid #dce8f5;border-left:4px solid #a9c8e8;border-radius:8px;background:#f7fbff}
+.depot:hover{background:#edf6ff}
+#customsCodes{background:#fbfdff;border-color:#dce9f7}
+#customsCodes .section-head{background:#f0f7ff}
+.code-side{border-color:#dce8f5;border-radius:8px;background:#fff}
+.code-side h3{background:#edf5fd;color:#386fa9}
+.secondary{border-color:#c8d3e2;border-radius:8px;background:#fff}
+.secondary:hover{background:#eef6ff}
+.kpi{border-color:#dce8f5;background:#fff}
+.goal-track{border-radius:4px}.goal-track i{background:#6ea5df;border-radius:4px}
+select,input,textarea{border-color:#c8d8e8;border-radius:8px;background:#fff}
+.opts label{border-color:#c8d8e8;border-radius:8px;background:#fff}
+.opts label:has(input:checked){background:#eef4ff}
+button.go.sent{background:var(--clear);box-shadow:none}
+</style>
+</head>
+<body>
+<main>
+<section class="hero">
+<header class="head">
+  <div><h1>YARDTH.COM</h1><div class="muted">สถานการณ์รถบรรทุกที่ท่าเรือแหลมฉบังและลานตู้ ICD / Depot</div></div>
+  <div class="head-actions">
+    <a class="btn" href="#reportAnchor">รายงานสถานการณ์รถ</a>
+    <button class="menu-toggle" id="systemMenuToggle" type="button" aria-expanded="false" aria-controls="systemMenu" aria-label="เปิดเมนูระบบ">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg><span>เมนู</span>
+    </button>
+    <nav class="system-menu" id="systemMenu" aria-label="เมนูระบบ" hidden>
+      <a href="#portSystem">แผนที่ท่าเรือ</a>
+      <a href="#portDashboard">สรุปท่าเรือ</a>
+      <a href="#icdDashboard">สรุปลานตู้</a>
+      <a href="#reportAnchor">รายงานสถานการณ์รถ</a>
+      <a href="#icdDepots">ค้นหาลานตู้</a>
+      <a href="#customsCodes">ค้นหารหัสสถานที่</a>
+    </nav>
+  </div>
+</header>
+<div class="summary" id="summary"></div>
+</section>
+
+<div class="layout" id="portSystem">
+  <section class="card">
+    <div class="cardhead"><h2>ท่าเรือแหลมฉบัง</h2></div>
+    <div class="mapwrap"><div class="map" aria-label="แผนผังจำลองท่าเรือแหลมฉบัง">
+      <div class="maphint"><b>โซน A0–D3</b>คลิกโซนเพื่อดูข้อมูลและรายงานล่าสุด</div>
+      <div class="sea"></div><div class="ship">SHIP YARD</div>
+      <button class="zone yellow a0" data-zone="A0">A0</button><button class="zone blue a1" data-zone="A1">A1</button><button class="zone orange a2" data-zone="A2">A2</button><button class="zone orange a3" data-zone="A3">A3</button><button class="zone green a4" data-zone="A4">A4</button><button class="zone blue a5" data-zone="A5">A5</button>
+      <button class="zone yellow b1" data-zone="B1">B1</button><button class="zone yellow b2" data-zone="B2">B2</button><button class="zone yellow b3" data-zone="B3">B3</button><button class="zone yellow b4" data-zone="B4">B4</button><button class="zone yellow b5" data-zone="B5">B5</button>
+      <button class="zone blue c0" data-zone="C0">C0</button><button class="zone yellow c1" data-zone="C1">C1</button><button class="zone yellow c2" data-zone="C2">C2</button><button class="zone yellow c3" data-zone="C3">C3</button><button class="zone yellow d1" data-zone="D1">D1</button><button class="zone yellow d2" data-zone="D2">D2</button><button class="zone yellow d3" data-zone="D3">D3</button>
+      <div class="arrow">ทิศการเข้าเทียบท่าเรือ</div><div class="wave"></div><div class="wavelabel">แนวเขื่อนกันคลื่น</div>
+    </div></div>
+    <div class="mapnote">แผนผังจำลอง ไม่ใช่พิกัดจริง</div>
+    <div class="legend"><span><i class="swatch" style="background:var(--jam)"></i>หนาแน่น</span><span><i class="swatch" style="background:var(--busy)"></i>ปานกลาง</span><span><i class="swatch" style="background:var(--clear)"></i>คล่องตัว</span><span><i class="swatch" style="background:var(--none)"></i>ไม่มีรายงานใน 3 ชม.</span></div>
+  </section>
+  <aside class="card details" id="panel">
+    <div class="selhead"><div class="selbig" id="selBig">A0</div><div class="seltext"><div class="selkicker">จุดที่เลือก</div><h2 id="sel">โซน A0</h2><div class="selstatus" id="selStatus"></div></div></div><div class="banner" id="banner"></div><button class="btn" id="reportHere" type="button" data-rh>รายงานโซน A0</button><div class="reports"><div class="rephead"><h3>รายงานล่าสุด</h3><span class="muted" id="repcount"></span></div><div id="replist"></div><button class="secondary" id="repall" type="button" hidden>ดูทั้งหมด</button></div>
+    <div id="info"></div>
+        <div class="note">ข้อมูลใช้ประกอบการวางแผนเท่านั้น ควรตรวจสอบกับผู้ให้บริการก่อนเดินทาง สถานะรถมาจากรายงานของผู้ใช้งาน</div>
+  </aside>
+</div>
+
+<section class="card dash" id="portDashboard">
+  <h2>สรุปท่าเรือแหลมฉบัง</h2><div class="muted">เฉพาะโซนที่มีรายงานภายใน 3 ชั่วโมง · เรียงจากรายงานล่าสุด · คลิกแถวเพื่อดูรายละเอียด</div>
+  <div class="kpis" id="portKpi"></div><div class="bar" id="portBar"></div><div class="tw" id="portTable"></div>
+</section>
+<section class="card dash" id="icdDashboard">
+  <h2>สรุปลานตู้ ICD / Depot</h2><div class="muted">เฉพาะลานที่มีรายงานภายใน 3 ชั่วโมง · เรียงจากรายงานล่าสุด</div>
+  <div class="kpis" id="icdKpi"></div><div class="bar" id="icdBar"></div><div class="tw" id="icdTable"></div>
+</section>
+
+<div class="report" id="reportAnchor">
+  <section class="card">
+    <h2>รายงานสถานการณ์รถ</h2><div class="muted">คนขับช่วยกันรายงาน ใช้ได้ทั้งท่าเรือและลานตู้</div>
+    <div class="report-goal"><div class="goal-top"><b>รายงานวันนี้</b><strong id="reportCount">0 / 350</strong></div><div class="goal-track"><i id="reportGoalBar"></i></div><small id="reportGoalText">เป้าหมาย 350 รายงานต่อวัน</small></div>
+    <label for="rzone">จุดที่รายงาน</label><select id="rzone"></select>
+    <label>สถานะตอนนี้</label>
+    <div class="opts"><label><input type="radio" name="st" value="clear"><span><i class="dot clear"></i>คล่องตัว</span></label><label><input type="radio" name="st" value="busy"><span><i class="dot busy"></i>ปานกลาง</span></label><label><input type="radio" name="st" value="jam"><span><i class="dot jam"></i>หนาแน่น</span></label></div>
+    <label for="rwait">เวลารอโดยประมาณ</label>
+    <div class="waitrow"><input id="rwait" type="number" min="0" step="any" inputmode="decimal" placeholder="เช่น 45"><div class="opts unit"><label><input type="radio" name="unit" value="min" checked><span>นาที</span></label><label><input type="radio" name="unit" value="hr"><span>ชั่วโมง</span></label></div></div>
+    <label for="rnote">หมายเหตุ (ไม่บังคับ)</label><input id="rnote" maxlength="140" placeholder="เช่น คิวยาวถึงแยกหน้าประตู / ช่องรับตู้เต็ม">
+    <button class="go" id="send">ส่งรายงานสถานการณ์</button><div class="msg" id="msg" aria-live="polite"></div>
+  </section>
+</div>
+
+<section class="card section" id="icdDepots">
+  <div class="section-head"><h2>ค้นหาลานตู้ ICD / Depot</h2><div class="muted">พิมพ์ชื่อลาน ชื่อย่อ พื้นที่ หรือเบอร์โทร · ข้อมูลลานมาจากรายชื่อเดิมและ Google Maps ควรโทรยืนยันก่อนเดินทาง</div></div>
+  <div class="section-body">
+    <div class="dsearch"><input id="depotSearch" type="search" placeholder="ค้นหาลานตู้ เช่น TIFFA, ลาดกระบัง, ศรีราชา, KCD" autocomplete="off" enterkeyhint="search" aria-label="ค้นหาลานตู้"></div>
+    <div class="dhead muted" id="depotHead" aria-live="polite"></div>
+    <div class="depot-grid" id="depotResults"></div>
+    <div class="search-tools"><button class="secondary dmore" id="depotMore" type="button" hidden></button><button class="secondary" id="depotAll" type="button">แสดงลานตู้ทั้งหมด</button></div>
+  </div>
+</section>
+
+<section class="card section code-search" id="customsCodes">
+  <div class="section-head"><h2>ค้นหารหัสสถานที่ปฏิบัติพิธีการศุลกากรทางอิเล็กทรอนิกส์</h2><div class="muted">สำนักงานศุลกากรท่าเรือแหลมฉบัง · ค้นหาได้ทั้งรหัสและชื่อสถานที่ ทั้งฝั่ง Discharge และ Load</div></div>
+  <div class="section-body">
+    <div class="search-tools"><input id="portCodeSearch" type="search" placeholder="ค้นหารหัสท่า เช่น 2811 หรือชื่อท่า เช่น GREEN SIAM" autocomplete="off" aria-label="ค้นหารหัสท่า"><button class="secondary" id="portCodeAll" type="button">แสดงทั้งหมด</button></div>
+    <div id="portCodeResults" hidden>
+      <div class="code-count" id="portCodeCount" aria-live="polite"></div>
+      <div class="code-columns">
+        <div class="code-side"><h3>Discharge · สถานที่ตรวจปล่อยสำหรับทำนำเข้า</h3><div class="code-main">รหัสหลัก 2801</div><div id="dischargeResults"></div></div>
+        <div class="code-side"><h3>Load · สถานที่ตรวจปล่อยสำหรับท่าส่งออก</h3><div class="code-main">รหัสหลัก 2801</div><div id="loadResults"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<div class="modal" id="depotModal" hidden><div class="modal-box wide">
+  <div class="mhead"><h2 id="selM"></h2><button class="secondary" id="depotClose" type="button">ปิด</button></div>
+  <div class="banner" id="bannerM"></div>
+  <div class="reports"><div class="rephead"><h3>รายงานล่าสุด</h3><span class="muted" id="repcountM"></span></div><div id="replistM"></div><button class="secondary" id="repallM" type="button" hidden></button></div>
+  <button class="btn" id="reportHereM" type="button" data-rh>รายงานสถานการณ์จุดนี้</button>
+  <div id="infoM"></div>
+</div></div>
+
+<div class="muted" style="text-align:center;margin:18px 0"><span class="sync-state offline" id="syncStatus">กำลังตรวจสอบ...</span></div>
+</main>
+<!-- เก็บ data.js เดิมไว้ได้ หากเว็บไซต์เดิมใช้ไฟล์นี้เก็บรายละเอียดโซนท่าเรือ -->
+<script src="data.js"></script>
+<script>
+'use strict';
+
+// URL ของ Google Apps Script Web App ที่ผู้ใช้ Deploy ไว้แล้ว
+const SHEETS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxXSvarIsgLIngnlxxnCY_GwxZOY-gi6cv1eDTyA4MNUYghQq8GYHbVGaHZ9cNsll7inw/exec';
+const SHEET_POLL_MS = 30000;
+let pollFails = 0;
+const DAILY_GOAL = 350;
+
+
+const DEFAULT_PORT_TYPES = {
+  A0:'Container Terminal',A1:'Ro/Ro Terminal',A2:'Multi-purpose Terminal',A3:'Multi-purpose Terminal',A4:'Bulk Cargo Terminal',A5:'Ro/Ro Terminal',
+  B1:'Container Terminal',B2:'Container Terminal',B3:'Container Terminal',B4:'Container Terminal',B5:'Container Terminal',
+  C0:'Ro/Ro Terminal',C1:'Container Terminal',C2:'Container Terminal',C3:'Container Terminal',D1:'Container Terminal',D2:'Container Terminal',D3:'Container Terminal'
+};
+let PORT_TYPES = {...DEFAULT_PORT_TYPES};
+
+// ฐานข้อมูลลานตู้ (กรุงเทพฯ-ชลบุรี) คัดจากรายชื่อเดิมและตรวจกับ Google Maps ณ 12 พ.ย. 2569
+// vs: ok=พบใน Google Maps, maybe=ชื่อใกล้เคียง, no=ยังไม่พบ · legacy=ท่าเรือที่มีในแผนผังแล้ว (ซ่อนจากการค้นหา)
+const DEFAULT_FACILITIES = {
+  "ICD-BKK-01":{"name": "Siam Shoreside Services (ป.1 ลาดกระบัง)", "short": "Siam Shoreside Services", "type": "สถานีบรรจุและลานเก็บตู้คอนเทนเนอร์ (ICD Gate 1)", "location": "ICD ลาดกระบัง กรุงเทพฯ", "service": "รับฝาก ตรวจสอบ ซ่อมบำรุงตู้สินค้า และขนถ่ายผ่านระบบราง-ทางบก", "city": "กรุงเทพมหานคร", "alias": "ICD ลาดกระบัง ป.1 ประตู 1 gate 1 SSS Siam Shoreside Services (ICD ประตู 1) ICD ลาดกระบัง ประตู gate", "phone": "02-763-5000, 02-737-9001", "hours": "จ–ศ 08:00–17:00 (Maersk ระบุรับ/คืนตู้เปล่า จ–ส 08:00–20:00)", "pid": "ChIJMZ7z9ltmHTERC6mKmXM3EN4", "gname": "Siam Shoreside Services (ICD ประตู 1)", "vs": "ok"},
+  "ICD-BKK-02":{"name": "Evergreen Container Terminal (Thailand) Ltd. (ป.3 ลาดกระบัง)", "short": "Evergreen Container Terminal", "type": "ลานตู้คอนเทนเนอร์สายการเรือ (ICD Gate 3)", "location": "ICD ลาดกระบัง กรุงเทพฯ", "service": "จัดเก็บตู้เปล่า ล้างและซ่อมแซมตู้คอนเทนเนอร์นำเข้า-ส่งออก", "city": "กรุงเทพมหานคร", "alias": "ICD ลาดกระบัง ป.3 ประตู 3 gate 3 เอเวอร์กรีน Evergreen Container Terminal (Thailand) ประตู 3 ICD ลาดกระบัง ประตู gate", "phone": "02-737-9888", "pid": "ChIJLXanFmRmHTERODZiDeBpvmk", "gname": "Evergreen Container Terminal (Thailand) ประตู 3", "vs": "ok"},
+  "ICD-BKK-03":{"name": "MTD LKB (MEDLOG THAI DEPOT CO., LTD.)", "short": "MTD LKB", "type": "ลานจัดการและฝากตู้คอนเทนเนอร์", "location": "เขตลาดกระบัง กรุงเทพฯ", "service": "รับฝากตู้เปล่า ตรวจเช็กสภาพมาตรฐาน ซ่อมแซม และทำความสะอาด", "city": "กรุงเทพมหานคร", "alias": "Medlog Thai Depot MTD", "phone": "02-049-9800", "hours": "จ–ส 07:30–22:00", "pid": "ChIJE-bRWlJnHTERWPCjKHUSU04", "gname": "MTD LKB (Medlog Thai Depot สาขาลาดกระบัง)", "vs": "ok"},
+  "ICD-BKK-04":{"name": "TIFFA ICD LKB GATE 4", "short": "TIFFA ICD LKB", "type": "สถานีบรรจุและแยกสินค้ากล่อง (ICD Gate 4)", "location": "ICD ลาดกระบัง กรุงเทพฯ", "service": "บริการบรรจุสินค้าลงตู้ (CFS) ตรวจรับและหมุนเวียนตู้คอนเทนเนอร์", "city": "กรุงเทพมหานคร", "alias": "ICD ลาดกระบัง ป.4 ประตู 4 gate 4 ทิฟฟา Tiffa I.C.D. Co.,Ltd. (ประตู 4) ICD ลาดกระบัง ประตู gate", "phone": "02-737-9990", "pid": "ChIJ-5V0S2JmHTERGVX8c7RFx0k", "gname": "Tiffa I.C.D. Co.,Ltd. (ประตู 4)", "vs": "ok"},
+  "ICD-LCB-01":{"name": "KCD Depot (บริษัท เคซีดี (ประเทศไทย) จำกัด / KCD2)", "short": "KCD Depot (KCD2)", "type": "ลานรับฝากและจัดการตู้คอนเทนเนอร์ (Empty Container Depot)", "location": "อ่าวอุดม-แหลมฉบัง ต.ทุ่งสุขลา อ.ศรีราชา จ.ชลบุรี", "service": "รับฝากตู้เปล่า ตรวจสภาพ ซ่อมแซม ล้างตู้ และบริหารจัดการผ่านระบบ K-Digi App", "city": "จังหวัดชลบุรี", "alias": "KCD KCD2 เคซีดี", "hours": "เปิดทุกวัน 05:00–19:00", "pid": "ChIJq0-Gw6i3AjER_8zUnETc0L4", "gname": "KCD2", "vs": "ok"},
+  "ICD-LCB-02":{"name": "ลาน KCD เคอรี่", "short": "ลาน KCD เคอรี่", "type": "ลานจัดเก็บและหมุนเวียนตู้คอนเทนเนอร์", "location": "ต.ทุ่งสุขลา อ.ศรีราชา จ.ชลบุรี (ใกล้นิคมแหลมฉบัง)", "service": "บริการรับฝาก คืนตู้คอนเทนเนอร์ และจุดขนถ่ายตู้สินค้า", "city": "จังหวัดชลบุรี", "alias": "KCD เคอรี่ kerry", "vs": "no"},
+  "ICD-LCB-03":{"name": "Evergreen Container Terminal (Thailand) LTD. (แหลมฉบัง B2)", "short": "Evergreen (B2)", "type": "ท่าเทียบเรือและลานตู้คอนเทนเนอร์", "location": "ท่าเรือแหลมฉบัง อ.ศรีราชา จ.ชลบุรี", "service": "", "city": "จังหวัดชลบุรี", "legacy": true},
+  "ICD-LCB-04":{"name": "REI Depot (ThaiReefer Container Yard)", "short": "REI Depot", "type": "ลานตู้คอนเทนเนอร์แห้งและตู้เย็น", "location": "โซนแหลมฉบัง อ.ศรีราชา จ.ชลบุรี (ข้อมูลที่ให้มาระบุห่างจากท่าเรือ 14 กม.)", "service": "จุดรับฝากตู้ มีบริการปลั๊กเสียบไฟสำหรับตู้เย็น (Reefer Container) และซ่อมบำรุง", "city": "จังหวัดชลบุรี", "alias": "REI reefer ตู้เย็น REI Depot (ลานตู้ REI แหลมฉบัง)", "phone": "086-777-5324, 038-482-053-4, 038-482-038", "hours": "จ–ส 08:00–17:00", "pid": "ChIJK2-xyjy4AjER32jrTw3TC7E", "gname": "REI Depot (ลานตู้ REI แหลมฉบัง)", "vs": "ok"},
+  "ICD-LCB-05":{"name": "Thai Eng Kong Container Services (LCB Depot 1)", "short": "Thai Eng Kong", "type": "ลานฝากและซ่อมแซมตู้คอนเทนเนอร์", "location": "โซนบึง อ.ศรีราชา จ.ชลบุรี", "service": "บริการจัดเก็บตู้เปล่า ซ่อมแซม ตรวจสอบสภาพตู้ก่อนบรรจุส่งออก", "city": "จังหวัดชลบุรี", "alias": "TEK LCB Depot 1 ไทยเอ็งกง Thai Eng Kong Container Services (LCB Depot 1)", "phone": "033-136-793, 038-491-613-4, 038-400-842", "hours": "จ–ส 08:00–20:00", "pid": "ChIJ--2AEAC5AjERJW1g_LF7Gb0", "gname": "Thai Eng Kong Container Services (LCB Depot 1)", "vs": "ok"},
+  "ICD-LCB-06":{"name": "บริษัท อีสเทิร์นซี แหลมฉบัง เทอร์มินัล จำกัด ESCO (B3)", "short": "ESCO (B3)", "type": "ท่าเทียบเรือและลานตู้สินค้าหลัก", "location": "ท่าเรือแหลมฉบัง อ.ศรีราชา จ.ชลบุรี", "service": "", "city": "จังหวัดชลบุรี", "legacy": true},
+  "ICD-LCB-07":{"name": "MTD LCP (สาขาท่าเรือแหลมฉบัง)", "short": "MTD LCP", "type": "ลานฝากและบริการตู้คอนเทนเนอร์", "location": "โซนบึง ใกล้นิคมอุตสาหกรรมแหลมฉบัง จ.ชลบุรี", "service": "บริการยกตู้ ฝากวางตู้เปล่า ล้างทำความสะอาด และบำรุงรักษาตู้สินค้า", "city": "จังหวัดชลบุรี", "alias": "MTD LCP Medlog", "vs": "no"},
+  "TP-001":{"name": "บี.ซี. เดโป จำกัด (B.C. Depot)", "short": "BC", "type": "ลานตู้ / Depot", "location": "คลองเตย", "city": "กรุงเทพมหานคร", "phone": "083-823-4202, 02-671-6941-3", "hours": "จ–ศ 08:30–17:00", "pid": "ChIJAzL65JOf4jARjapmFVntstY", "gname": "B.C.Depot Co.,Ltd (คลองเตย)", "alias": "BC B.C.Depot Co.,Ltd (คลองเตย)", "vs": "ok"},
+  "TP-008":{"name": "คอนเซ็นเตอร์ จำกัด (Concenter)", "short": "คอนเซ็นเตอร์ (Concenter)", "type": "ลานตู้ / Depot", "location": "คลองเตย (คอน 3)", "city": "กรุงเทพมหานคร", "phone": "02-712-2405-11", "vs": "no"},
+  "TP-009":{"name": "คอนเซ็นเตอร์ จำกัด (Concenter)", "short": "CONCENTER 4", "type": "ลานตู้ / Depot", "location": "บางนา กม.3.5 (คอน 4)", "city": "กรุงเทพมหานคร", "phone": "02-393-3921, 02-393-1110, 02-393-5769", "hours": "จ–ส 08:30–17:00", "pid": "ChIJAZV1Fg-g4jARgaQSa5pJWVw", "gname": "บริษัท คอนเซ็นเตอร์ จำกัด (ซอยบางนา-ตราด 42)", "alias": "CONCENTER 4 บริษัท คอนเซ็นเตอร์ จำกัด (ซอยบางนา-ตราด 42)", "vs": "ok"},
+  "TP-010":{"name": "อีสเทิร์น ซี แหลมฉบัง เทอร์มินัล จำกัด (ESCO)", "short": "อีสเทิร์น ซี แหลมฉบัง เทอร์มินัล (ESCO)", "type": "ลานตู้ / Container terminal", "location": "ลาดกระบัง ป.2", "city": "กรุงเทพมหานคร", "phone": "02-106-8900, 02-737-9701, 038-491-255", "hours": "จ–ศ 08:00–05:00 (ตามที่ Google แสดง)", "pid": "ChIJj0W4bFpmHTERX4Q0tAAvSZU", "gname": "ESCO ICD ประตู 2 ลาดกระบัง", "alias": "ESCO ICD ประตู 2 ลาดกระบัง ICD ลาดกระบัง ประตู gate", "vs": "ok"},
+  "TP-012":{"name": "อาร์เอส คอนเทนเนอร์ เดโปท์ จำกัด (R.S.)", "short": "อาร์เอส คอนเทนเนอร์ เดโปท์ (R.S.)", "type": "ลานตู้ / Depot", "location": "บางนา กม.1 ซอยพานิชการบางนา", "city": "กรุงเทพมหานคร", "phone": "02-743-6661-3, แผนกขนส่ง 02-743-6664", "vs": "no"},
+  "TP-015":{"name": "ซี.ดี.เอส. สโตรเรจ จำกัด (CDS)", "short": "CDS STORAGE", "type": "ลานตู้ / Storage", "location": "ซอยลาซาล", "city": "กรุงเทพมหานคร", "phone": "02-758-8191-7", "alias": "CDS STORAGE", "vs": "no"},
+  "TP-016":{"name": "ซี.ดี.เอส. สโตรเรจ จำกัด (CDS 1)", "short": "CDS STORAGE; CDS กม.6", "type": "ลานตู้ / Storage", "location": "บางนา กม.6 ซอยปลัดเปรียง", "city": "กรุงเทพมหานคร", "phone": "02-740-3162, 02-740-3163-7", "alias": "CDS STORAGE; CDS กม.6", "vs": "no"},
+  "TP-017":{"name": "คอนเทนเนอร์ดีโป้ท์เซอร์วิส จำกัด (CDS 2)", "short": "CDS กม.6", "type": "ลานตู้ / Depot", "location": "บางนา กม.6 ข้างตึกบางนา-ทาวเวอร์", "city": "กรุงเทพมหานคร", "phone": "02-312-0731-7, 02-312-0297-8", "alias": "CDS กม.6", "vs": "no"},
+  "TP-022":{"name": "เอเวอร์กรีน คอนเทนเนอร์ (ปทท) จำกัด", "short": "LCD Evergreen ลานนอก", "type": "ลานตู้ / Depot", "location": "ลาดกระบัง ป.3 ลานนอก", "city": "กรุงเทพมหานคร", "phone": "02-737-9888, 02-737-7474-86", "pid": "ChIJLXanFmRmHTERODZiDeBpvmk", "gname": "Evergreen Container Terminal (Thailand) ประตู 3", "alias": "LCD Evergreen ลานนอก Evergreen Container Terminal (Thailand) ประตู 3 ICD ลาดกระบัง ประตู gate", "vs": "maybe"},
+  "TP-029":{"name": "เอ็น วาย เค ดิสทริบิวชั่น เซอร์วิส (ประเทศไทย) จำกัด", "short": "เอ็น วาย เค ดิสทริบิวชั่น เซอร์วิส (ประเทศไทย)", "type": "ท่าบก / ICD", "location": "ลาดกระบัง ป.6", "city": "กรุงเทพมหานคร", "phone": "02-737-9900", "pid": "ChIJc5uuJyJnHTER5y2QmCJeR6Y", "gname": "ICD ลาดกระบัง ประตู 6", "alias": "ICD ลาดกระบัง ประตู 6 ICD ลาดกระบัง ประตู gate", "vs": "maybe"},
+  "TP-035":{"name": "จีฟ่า โลจิสติกส์ จำกัด (G-FA)", "short": "จีฟ่า โลจิสติกส์ (G-FA)", "type": "ลานตู้ / Logistics", "location": "ลาดกระบัง", "city": "กรุงเทพมหานคร", "phone": "02-737-7338-9", "vs": "no"},
+  "TP-040":{"name": "คอสยามทรานสปอร์ต จำกัด", "short": "คอสยามทรานสปอร์ต", "type": "ลานตู้ / Depot", "location": "คลองเตย (สำนักงานใหญ่)", "city": "กรุงเทพมหานคร", "phone": "02-258-9994, 02-258-9133", "vs": "no"},
+  "TP-041":{"name": "คอสยามทรานสปอร์ต จำกัด", "short": "COSIAM 1", "type": "ลานตู้ / Depot", "location": "บางนา กม.2 (สาขา 1)", "city": "กรุงเทพมหานคร", "phone": "02-399-1733-5, 02-399-1731-7", "pid": "ChIJNa7CZ_FfHTERlPgorac5SVQ", "gname": "Cosiam Warehouse (บางนา-ตราด ฟรอนเทจ)", "alias": "COSIAM 1 Cosiam Warehouse (บางนา-ตราด ฟรอนเทจ)", "vs": "maybe"},
+  "TP-043":{"name": "คอนพูลท์ จำกัด (Contpool)", "short": "คอนพูลท์ (Contpool)", "type": "ลานตู้ / Depot", "location": "บางนา", "city": "กรุงเทพมหานคร", "phone": "02-740-3225, 02-740-3227-8", "vs": "no"},
+  "TP-045":{"name": "เกรทเทนเนอร์ จำกัด (Greatainer)", "short": "เกรทเทนเนอร์ (Greatainer)", "type": "ลานตู้ / Depot", "location": "บางนา กม.4", "city": "กรุงเทพมหานคร", "phone": "02-746-8934-5", "vs": "no"},
+  "TP-047":{"name": "คัสตอม โกลบอล เซอร์วิส จำกัด", "short": "คัสตอม โกลบอล เซอร์วิส", "type": "ลานตู้ / Container service", "location": "คลองเตย", "city": "กรุงเทพมหานคร", "phone": "02-249-7255-6", "vs": "no"},
+  "TP-051":{"name": "วินวิน คอนเทนเนอร์ เดโป จำกัด", "short": "WIN WIN", "type": "ลานตู้ / Depot", "location": "ลาดกระบัง", "city": "กรุงเทพมหานคร", "phone": "02-360-6492, 02-360-6495", "hours": "เปิด 24 ชม. (Maersk: จ–ส 08:00–20:00, อา 08:00–17:00)", "pid": "ChIJScv6lTdmHTER6u2Mu0ddG8E", "gname": "Win Win Container Depot ลาดกระบัง", "alias": "WIN WIN Win Win Container Depot ลาดกระบัง", "vs": "ok"},
+  "TP-054":{"name": "ไทย ฮันจิน โลจิสติกส์ จำกัด", "short": "ไทย ฮันจิน โลจิสติกส์", "type": "ลานตู้ / Logistics", "location": "ลาดกระบัง ป.5", "city": "กรุงเทพมหานคร", "phone": "02-116-7401, 02-737-6970, 02-737-9400", "pid": "ChIJx4XyYWRmHTERtVefu_Gp8lI", "gname": "Thai Hanjin Logistics (ICD ประตู 5)", "alias": "Thai Hanjin Logistics (ICD ประตู 5) ICD ลาดกระบัง ประตู gate", "vs": "ok"},
+  "TP-055":{"name": "เอ็น เอช พรอสเพอริตี้ จำกัด (NHP)", "short": "NHP", "type": "ลานตู้ / Depot", "location": "ท่าป่า ใกล้สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง", "city": "กรุงเทพมหานคร", "phone": "02-737-4561, 02-737-4560-79", "pid": "ChIJeWDqoIRoHTERmitSfjSyPoY", "gname": "NHP Lat Krabang", "alias": "NHP NHP Lat Krabang", "vs": "ok"},
+  "TP-086":{"name": "บางซื่อ อินแลนด์ พอร์ต จำกัด", "short": "บางซื่อ อินแลนด์ พอร์ต", "type": "ท่าบก / Inland port", "location": "บางซื่อ กรุงเทพฯ", "city": "กรุงเทพมหานคร", "phone": "02-272-4808", "vs": "no"},
+  "TP-087":{"name": "บางนา ซี ดี จำกัด", "short": "บางนา ซี ดี", "type": "ลานตู้ / Depot", "location": "บางนา กม.4", "city": "กรุงเทพมหานคร", "phone": "02-746-8978-80", "vs": "no"},
+  "TP-018":{"name": "คอนเทนเนอร์ดีโป้ท์เซอร์วิส แอนด์ทรานสปอร์ต จำกัด", "short": "คอนเทนเนอร์ดีโป้ท์เซอร์วิส แอนด์ทรานสปอร์ต", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง (CDS)", "city": "จังหวัดชลบุรี", "phone": "038-768-628, 038-768-625-8", "hours": "จ–ส 08:00–17:00", "pid": "ChIJZ824usi5AjERY_TQJCcvRC0", "gname": "cds (laemchabang) transport", "alias": "cds (laemchabang) transport", "vs": "ok"},
+  "TP-034":{"name": "สยาม เดโปท์ แอนด์ ทรานสปอร์ต จำกัด", "short": "SIAM DEPOT", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-481-363-4", "alias": "SIAM DEPOT", "vs": "no"},
+  "TP-042":{"name": "คอสยามทรานสปอร์ต จำกัด", "short": "คอสยามทรานสปอร์ต", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง (สาขา 5)", "city": "จังหวัดชลบุรี", "phone": "092-455-5164, 038-400-151", "hours": "จ–ส 08:00–17:00", "pid": "ChIJCZPoS4m5AjERNUXo88sLkm4", "gname": "คอสยาม 5 แหลมฉบัง", "alias": "คอสยาม 5 แหลมฉบัง", "vs": "ok"},
+  "TP-044":{"name": "คอนพูลท์ จำกัด (Contpool)", "short": "คอนพูลท์ (Contpool)", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-495-177-8", "vs": "no"},
+  "TP-046":{"name": "เกรทเทนเนอร์ จำกัด (Greatainer)", "short": "เกรทเทนเนอร์ (Greatainer)", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-400-151, 038-491-757", "vs": "no"},
+  "TP-050":{"name": "เคไลน์คอนเทนเนอร์เซอร์วิส จำกัด", "short": "เคไลน์คอนเทนเนอร์เซอร์วิส", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-774-999, 038-704-133", "hours": "จ–ศ 08:00–17:30", "pid": "ChIJ-3Xu08DJAjEReK0xLzH4tsA", "gname": "K Line Container Service (Thailand) บางพระ", "alias": "K Line Container Service (Thailand) บางพระ", "vs": "ok"},
+  "TP-052":{"name": "วินวิน คอนเทนเนอร์ เดโป จำกัด", "short": "WIN WIN", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-482-683-6", "hours": "จ–ส 07:00–20:00 (ส ถึง 17:00)", "pid": "ChIJYXK3WIy5AjERCbHV3JC9kxs", "gname": "Winwin (แหลมฉบัง) หนองขาม", "alias": "WIN WIN Winwin (แหลมฉบัง) หนองขาม", "vs": "ok"},
+  "TP-053":{"name": "เค.อาร์.ซี. ทรานสปอร์ต แอนด์ เซอร์วิส จำกัด", "short": "เค.อาร์.ซี. ทรานสปอร์ต แอนด์ เซอร์วิส", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-401-309, 038-401-309-10", "hours": "จ–ศ 06:00–20:00 · ส 06:00–17:00", "pid": "ChIJOwKB0Qq5AjERV_y1gsfkT0A", "gname": "K.R.C. Transport & Service", "alias": "K.R.C. Transport & Service", "vs": "ok"},
+  "TP-056":{"name": "เอสเอ็มพีแอล ซินดิเคท จำกัด (SMPL / ลาน 99)", "short": "เอสเอ็มพีแอล ซินดิเคท (SMPL / ลาน 99)", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-060-061, 083-118-0099", "pid": "ChIJPce0KpC3AjERhhKVAWjRCYE", "gname": "ลาน 99 (SMPL)", "alias": "ลาน 99 (SMPL)", "vs": "ok"},
+  "TP-058":{"name": "ยูนิไวส์ คอนเทนเนอร์ เซอร์วิส จำกัด", "short": "ยูนิไวส์ คอนเทนเนอร์ เซอร์วิส", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-400-861, 038-400-861-2", "hours": "จ–ส 07:30–17:00", "pid": "ChIJx7bqnx-6AjER7H55_EIg7tc", "gname": "ยูนิไวส์ คอนเทนเนอร์ เซอร์วิส", "alias": "ยูนิไวส์ คอนเทนเนอร์ เซอร์วิส", "vs": "ok"},
+  "TP-066":{"name": "วายเจซี (ประเทศไทย) จำกัด (YJC)", "short": "YJC", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "089-493-3099, 038-296-218, 038-296-866", "hours": "จ–ส 08:00–17:00", "pid": "ChIJYeFyGHfIAjERALLEfFexBPk", "gname": "YJC Thailand (Container Depot)", "alias": "YJC YJC Thailand (Container Depot)", "vs": "ok"},
+  "TP-068":{"name": "เอ-วัน อินเตอร์เนชั่นแนล คอนเทนเนอร์ ดีพอท จำกัด", "short": "เอ-วัน อินเตอร์เนชั่นแนล คอนเทนเนอร์ ดีพอท", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-400-768, 038-400-788", "hours": "จ–ส 08:00–17:00", "pid": "ChIJR5n2ut25AjERLIDYp4sQMcY", "gname": "A-One International Container Depot", "alias": "A-One International Container Depot", "vs": "ok"},
+  "TP-069":{"name": "เอ็ม อาร์ ซีดี คอนเทนเนอร์ แหลมฉบัง จำกัด (MRCD)", "short": "เอ็ม อาร์ ซีดี คอนเทนเนอร์ แหลมฉบัง (MRCD)", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-263-589-92", "vs": "no"},
+  "TP-070":{"name": "โมเดิร์น ดีโพท์ แอนด์ ทรานสปอร์ต จำกัด", "short": "โมเดิร์น ดีโพท์ แอนด์ ทรานสปอร์ต", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "033-000-697, 038-340-301-3, 038-401-313", "hours": "จ–ส 07:00–17:00", "pid": "ChIJJePSaurHAjER74k0A1U5M-g", "gname": "LID1 (Laemchabang Inter Depot & Transport) เรียกกันว่า Modern Yard", "alias": "LID1 (Laemchabang Inter Depot & Transport) เรียกกันว่า Modern Yard", "vs": "maybe"},
+  "TP-074":{"name": "ดีดี คอนเทนเนอร์ จำกัด", "short": "ดีดี คอนเทนเนอร์", "type": "ลานตู้ / Depot", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-760-900, 081-940-3842", "vs": "no"},
+  "TP-097":{"name": "เอส.ซี.เอส. ยาร์ด จำกัด (S.C.S. Yard)", "short": "เอส.ซี.เอส. ยาร์ด (S.C.S. Yard)", "type": "ลานตู้ / Yard", "location": "แหลมฉบัง", "city": "จังหวัดชลบุรี", "phone": "038-768-344, 038-768-345-7, 01-942-3537", "hours": "จ–ส 08:00–17:00", "pid": "ChIJDQfyFrK5AjERX1zDNUweo9o", "gname": "S.C.S. Yard", "alias": "S.C.S. Yard", "vs": "ok"},
+  "GM-01":{"name": "Evergreen ECD1", "short": "Evergreen ECD1", "type": "ลานตู้ / Depot", "location": "หนองขาม ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "081-835-7894", "hours": "เปิด 24 ชม.", "pid": "ChIJ2esecvHHAjERsMxTsEgvrPk", "gname": "Evergreen ECD1", "vs": "ok"},
+  "GM-02":{"name": "CMA CGM (CCIS1)", "short": "CMA CGM (CCIS1)", "type": "ลานตู้ / Depot", "location": "หนองขาม ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "033-030-667", "hours": "จ–ส 07:00–19:00", "pid": "ChIJVc3AVxi5AjERIQrDkQGDMn0", "gname": "CMA CGM (CCIS1)", "alias": "CCIS CCIS1 ซีเอ็มเอ", "vs": "ok"},
+  "GM-03":{"name": "ลานตู้ KCD Cosco", "short": "ลานตู้ KCD Cosco", "type": "ลานตู้ / Depot", "location": "ทุ่งสุขลา ศรีราชา", "city": "จังหวัดชลบุรี", "hours": "จ–ส 08:00–19:00", "pid": "ChIJUV6JoiC3AjER5Z-plyfdwJE", "gname": "ลานตู้ KCD Cosco", "alias": "KCD Cosco", "vs": "ok"},
+  "GM-04":{"name": "ลานตู้ KSP DEPOT", "short": "ลานตู้ KSP DEPOT", "type": "ลานตู้ / Depot", "location": "บางละมุง", "city": "จังหวัดชลบุรี", "phone": "038-196-307", "hours": "จ–ส 08:00–16:50", "pid": "ChIJ29e6Ily5AjERCl4soNT1vz4", "gname": "ลานตู้ KSP DEPOT", "vs": "ok"},
+  "GM-05":{"name": "ลาน MPJ ชลบุรี", "short": "ลาน MPJ ชลบุรี", "type": "ลานตู้ / Depot", "location": "หนองขาม ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "084-088-0668", "hours": "จ–ส 07:00–21:00", "pid": "ChIJHdaFUBu4AjER81CwBlUNlUY", "gname": "ลาน MPJ ชลบุรี", "vs": "ok"},
+  "GM-06":{"name": "MTD PTH (Medlog Thai Depot สาขาปิ่นทอง)", "short": "MTD PTH (Medlog Thai Depot สาขาปิ่นทอง)", "type": "ลานตู้ / Depot", "location": "หนองขาม ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "095-210-1888", "hours": "จ–ส 07:00–20:00", "pid": "ChIJTz-PWnnIAjERfhp8FbaYXUw", "gname": "MTD PTH (Medlog Thai Depot สาขาปิ่นทอง)", "vs": "ok"},
+  "GM-07":{"name": "TIFFA Logistics Center", "short": "TIFFA Logistics Center", "type": "ลานตู้ / Depot", "location": "ลำปลาทิว ลาดกระบัง", "city": "กรุงเทพมหานคร", "phone": "02-013-8700", "hours": "จ–ส 08:00–17:00", "pid": "ChIJgwOWEwBnHTEReEsYMuqd1ZM", "gname": "TIFFA Logistics Center", "vs": "ok"},
+  "GM-08":{"name": "CIMC ลาดกระบัง", "short": "CIMC ลาดกระบัง", "type": "ลานตู้ / Depot", "location": "ทับยาว ลาดกระบัง", "city": "กรุงเทพมหานคร", "phone": "02-105-4782", "hours": "จ–ส 08:00–21:00", "pid": "ChIJewtr1PxpHTERdTyHZZ1d_qc", "gname": "CIMC ลาดกระบัง", "alias": "CIMC LKB", "vs": "ok"},
+  "GM-09":{"name": "CIMC ลาน 2 (ศรีราชา)", "short": "CIMC ลาน 2 (ศรีราชา)", "type": "ลานตู้ / Depot", "location": "บึง ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "033-004-484", "hours": "เปิดทุกวัน 08:00–19:00", "pid": "ChIJO8EHwFG5AjERbHWkGdy6u8g", "gname": "CIMC ลาน 2 (ศรีราชา)", "vs": "ok"},
+  "GM-10":{"name": "SR Depot ลาดกระบัง", "short": "SR Depot ลาดกระบัง", "type": "ลานตู้ / Depot", "location": "คลองสามประเวศ ลาดกระบัง", "city": "กรุงเทพมหานคร", "phone": "02-360-9472", "hours": "เปิดทุกวัน 06:00–17:00", "pid": "ChIJ0937sFdmHTERAS2aicmoeNg", "gname": "SR Depot ลาดกระบัง", "alias": "SR DEPOT เอสอาร์", "vs": "ok"},
+  "GM-11":{"name": "SYL Container and Service", "short": "SYL Container and Service", "type": "ลานตู้ / Depot", "location": "คลองสามประเวศ ลาดกระบัง", "city": "กรุงเทพมหานคร", "phone": "081-991-4789", "hours": "เปิด 24 ชม.", "pid": "ChIJfT1AZE1nHTERLTeVF--Z2eg", "gname": "SYL Container and Service", "vs": "ok"},
+  "GM-12":{"name": "Wintech 2002 Yard", "short": "Wintech 2002 Yard", "type": "ลานตู้ / Depot", "location": "คลองสามประเวศ ลาดกระบัง", "city": "กรุงเทพมหานคร", "phone": "083-789-6193", "hours": "เปิดทุกวัน 08:00–17:00", "pid": "ChIJcbCOK8tnHTERJY7Q-Vy7iaA", "gname": "Wintech 2002 Yard", "vs": "ok"},
+  "GM-13":{"name": "The Container", "short": "The Container", "type": "ลานตู้ / Depot", "location": "ทับยาว ลาดกระบัง", "city": "กรุงเทพมหานคร", "phone": "02-360-6170", "hours": "จ–ศ 08:30–17:30", "pid": "ChIJK1lR2JxoHTERJCjuLm1k0QQ", "gname": "The Container", "vs": "ok"},
+  "GM-14":{"name": "S.Y.T. Container Laem Chabang", "short": "S.Y.T. Container Laem Chabang", "type": "ลานตู้ / Depot", "location": "ทุ่งสุขลา ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "038-401-377", "hours": "จ–ส 08:00–21:00", "pid": "ChIJgRAiu1K4AjERrn6U89XAksE", "gname": "S.Y.T. Container Laem Chabang", "vs": "ok"},
+  "GM-15":{"name": "Advance Container Service (ACS)", "short": "Advance Container Service (ACS)", "type": "ลานตู้ / Depot", "location": "หนองขาม ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "038-760-096", "hours": "จ–ส 08:00–17:00", "pid": "ChIJUdbS36-5AjERWRKoKjgLc6Q", "gname": "Advance Container Service (ACS)", "vs": "ok"},
+  "GM-16":{"name": "ลานตู้เซ็นทรัล คอนเทนเนอร์ เวิลด์ (LCB)", "short": "ลานตู้เซ็นทรัล คอนเทนเนอร์ เวิลด์ (LCB)", "type": "ลานตู้ / Depot", "location": "ทุ่งสุขลา ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "038-400-255", "hours": "จ–ส 07:00–17:00", "pid": "ChIJ01yQLIi5AjERovAZYh8i1LQ", "gname": "ลานตู้เซ็นทรัล คอนเทนเนอร์ เวิลด์ (LCB)", "alias": "CENTRAL เซ็นทรัล", "vs": "ok"},
+  "GM-17":{"name": "ดีเดโป คอนเทนเนอร์ เซอร์วิสซ์ (D Depot บึง)", "short": "ดีเดโป คอนเทนเนอร์ เซอร์วิสซ์ (D Depot บึง)", "type": "ลานตู้ / Depot", "location": "บึง ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "033-081-696", "hours": "จ–ส 08:00–17:00", "pid": "ChIJNwriTRbHAjER8fSMFDPxV_0", "gname": "ดีเดโป คอนเทนเนอร์ เซอร์วิสซ์ (D Depot บึง)", "alias": "D Depot ดีเดโป", "vs": "ok"},
+  "GM-18":{"name": "Greating Fortune Container Service (GFLCB1)", "short": "Greating Fortune Container Service (GFLCB1)", "type": "ลานตู้ / Depot", "location": "ทุ่งสุขลา ศรีราชา", "city": "จังหวัดชลบุรี", "hours": "จ–ส 08:00–17:00", "pid": "ChIJY4dqTay5AjERu9aBvY2jRB0", "gname": "Greating Fortune Container Service (GFLCB1)", "alias": "GF GF-1 G-Fortune", "vs": "ok"},
+  "GM-19":{"name": "Greating Fortune Container Service (LCB 4)", "short": "Greating Fortune Container Service (LCB 4)", "type": "ลานตู้ / Depot", "location": "ทุ่งสุขลา ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "038-199-567", "hours": "จ–ส 08:30–17:30", "pid": "ChIJ6-KCnTC5AjERKjUrJXbgixw", "gname": "Greating Fortune Container Service (LCB 4)", "alias": "GF GF-4 G-Fortune", "vs": "ok"},
+  "GM-20":{"name": "Smart Logistics Service LCB-2", "short": "Smart Logistics Service LCB-2", "type": "ลานตู้ / Depot", "location": "หนองขาม ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "033-047-337", "hours": "จ–ส 08:00–17:00", "pid": "ChIJk5_8LHvHAjERqv_gGwsiAdI", "gname": "Smart Logistics Service LCB-2", "vs": "ok"},
+  "GM-21":{"name": "MCT Depot", "short": "MCT Depot", "type": "ลานตู้ / Depot", "location": "หนองขาม ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "093-240-9763", "hours": "จ–ส 08:00–17:00", "pid": "ChIJN38fq1-3AjERLU0UPM-khxk", "gname": "MCT Depot", "vs": "ok"},
+  "GM-22":{"name": "ThaiReefer-ReeGen Service Container Yard ลาดกระบัง", "short": "ThaiReefer-ReeGen Service Container Yard ลาดกระบัง", "type": "ลานตู้ / Depot", "location": "คลองสามประเวศ ลาดกระบัง", "city": "กรุงเทพมหานคร", "phone": "092-282-1365", "hours": "จ–ส 08:00–17:00", "pid": "ChIJK0rmbd1nHTERoy4qgrRxvSU", "gname": "ThaiReefer-ReeGen Service Container Yard ลาดกระบัง", "vs": "ok"}
+};
+let FACILITIES = JSON.parse(JSON.stringify(DEFAULT_FACILITIES));
+let REMOTE_LOCATIONS = {};
+
+const LABEL={clear:'คล่องตัว',busy:'ปานกลาง',jam:'หนาแน่น'};
+const KEY='tp_reports_v2';
+const DAY=864e5;
+const STALE_HOURS=(typeof SETTINGS!=='undefined'&&SETTINGS.staleHours)||3;
+const STALE=STALE_HOURS*36e5;
+const DATA=typeof ZONE_DATA!=='undefined'?ZONE_DATA:{};
+let pendingSentAt = {};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const PORT_ZONES=Object.keys(PORT_TYPES);
+const ICD_ZONES=Object.keys(FACILITIES);
+const ICD_ACTIVE=ICD_ZONES.filter(z=>!FACILITIES[z].legacy);
+const ALL_ZONES=[...PORT_ZONES,...ICD_ZONES];
+let cur='A0',curP='A0',curM='';
+let cloudReports=[];
+let cloudReady=false;
+let syncBusy=false;
+let lastSyncAt=null;
+let pendingIds=new Set();
+
+function isICD(z){return Boolean(FACILITIES[z]);}
+function categoryOf(z){return isICD(z)?'icd':'port';}
+function labelOf(z){if(isICD(z))return FACILITIES[z].name;const r=REMOTE_LOCATIONS[z]||{};return r.short||r.name||'โซน '+z;}
+function readLocal(){
+  try{
+    const current=localStorage.getItem(KEY);
+    if(current)return JSON.parse(current)||[];
+    // ย้ายรายงานเก่าจากเว็บไซต์เวอร์ชันเดิม (tp_reports_v1) มาใช้ต่ออัตโนมัติ
+    const legacy=JSON.parse(localStorage.getItem('tp_reports_v1')||'[]')||[];
+    if(legacy.length){localStorage.setItem(KEY,JSON.stringify(legacy));return legacy;}
+    return [];
+  }catch(e){return[];}
+}
+function writeLocal(rows){try{const cut=Date.now()-1.5*DAY;localStorage.setItem(KEY,JSON.stringify(rows.filter(r=>r&&Number(r.t)>=cut).slice(-200)));invalidate();return true;}catch(e){return false;}}
+function normalizeReport(r){
+  if(!r||!r.zone||!LABEL[r.status])return null;
+  const t=Number(r.t)||Date.parse(r.timestamp)||0;
+  if(!t)return null;
+  return {id:String(r.id||`${r.zone}-${t}`),category:r.category||(isICD(r.zone)?'icd':'port'),zone:String(r.zone),facility:String(r.facility||labelOf(String(r.zone))),status:r.status,wait:r.wait===''||r.wait==null?null:Number(r.wait),note:String(r.note||''),t};
+}
+let _idx=null;
+function invalidate(){_idx=null;}
+function index(){
+  if(_idx)return _idx;
+  const merged=new Map();
+  [...cloudReports,...readLocal()].forEach(raw=>{const r=normalizeReport(raw);if(r)merged.set(r.id,r);});
+  const all=[...merged.values()].sort((a,b)=>a.t-b.t);
+  const byZone=new Map();
+  all.forEach(r=>{let a=byZone.get(r.zone);if(!a){a=[];byZone.set(r.zone,a);}a.push(r);});
+  _idx={all,byZone};return _idx;
+}
+function allReports(){return index().all;}
+function zoneReports(z){return index().byZone.get(z)||[];}
+function latest(z){const a=zoneReports(z),r=a[a.length-1];return r&&Date.now()-r.t<STALE?r:null;}
+function ago(t){const m=Math.max(0,Math.round((Date.now()-t)/6e4));return m<1?'เมื่อสักครู่':m<60?m+' นาทีที่แล้ว':Math.floor(m/60)+' ชม.ที่แล้ว';}
+function fmtWait(m){m=Math.round(Number(m));if(!(m>=0))return '-';if(m<60)return m+' นาที';const h=Math.floor(m/60),r=m%60;return h+' ชม.'+(r?' '+r+' นาที':'');}
+function dotStatus(r){return r?`<i class="dot ${esc(r.status)}"></i>${esc(LABEL[r.status])}${r.wait!=null?' · รอ '+fmtWait(r.wait):''} · ${ago(r.t)}`:'ยังไม่มีรายงานล่าสุด';}
+function openState(h){if(!h)return null;if(h.is24h)return true;if(!h.open||!h.close)return null;const n=new Date(),days=h.days||[0,1,2,3,4,5,6];if(!days.includes(n.getDay()))return false;const m=n.getHours()*60+n.getMinutes(),p=s=>{const[a,b]=s.split(':');return +a*60+ +b};return m>=p(h.open)&&m<p(h.close);}
+let hid=0;
+function row(icon,title,body){if(body==='<span>ยังไม่มีข้อมูล</span>'){hid++;return '';}return '<div class="row"><div>'+icon+'</div><div><strong>'+title+'</strong>'+body+'</div></div>';}
+
+function render(z){
+  if(!ALL_ZONES.includes(z))z='A0';
+  cur=z;
+  if(!isICD(z))curP=z;
+  $('rzone').value=z;
+  document.querySelectorAll('.zone').forEach(b=>b.classList.toggle('sel',b.dataset.zone===curP));
+  renderPanel(curP,'');
+  if(!$('depotModal').hidden&&curM)renderPanel(curM,'M');
+}
+function openDepot(z){curM=z;renderPanel(z,'M');$('depotModal').hidden=false;$('depotClose').focus();}
+function renderPanel(z,p){
+  hid=0;
+  const r=latest(z);
+  if($('sel'+p))$('sel'+p).textContent=isICD(z)?labelOf(z):'โซน '+z;
+  if(p===''){
+    if($('selBig')){$('selBig').textContent=isICD(z)?'ICD':z;$('selBig').dataset.st=r?r.status:'';}
+    if($('selStatus'))$('selStatus').innerHTML=dotStatus(r);
+    if(!isICD(z))$('reportHere').textContent='รายงานโซน '+z;
+  }
+  if(isICD(z)){
+    const f=FACILITIES[z],m=REMOTE_LOCATIONS[z]||{};
+    $('banner'+p).innerHTML=esc(f.short)+' <span class="badge">ICD / Depot</span>';
+    const none='<span>ยังไม่มีข้อมูล</span>';
+    const hours=m.is24h?'เปิด 24 ชั่วโมง':(m.hoursOpen&&m.hoursClose?esc(m.hoursOpen)+' - '+esc(m.hoursClose):(f.hours?esc(f.hours):''));
+    const docs=(m.documents||[]).length?'<ul>'+m.documents.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':none;
+    const ph=phoneHTML(m.contactPhone||f.phone);
+    const contact=(m.contactPlace||ph||m.contactNote)?'<span>'+[m.contactPlace&&esc(m.contactPlace),ph&&'โทร '+ph,m.contactNote&&esc(m.contactNote)].filter(Boolean).join('<br>')+'</span>':none;
+    const vs=VS[f.vs];
+    $('info'+p).innerHTML=
+      (p==='M'?row('🗂️','ประเภทบริการ','<span>'+esc(f.type)+'</span>')+row('📍','พื้นที่','<span>'+esc([f.location,f.city].filter(Boolean).join(' · '))+'</span>')+(f.service?row('📦','การบริการ','<span>'+esc(f.service)+'</span>'):''):'')+
+      row('🏢','ผู้ให้บริการ / ลานตู้',m.operator?'<span>'+esc(m.operator)+'</span>':none)+
+      row('📍','ที่อยู่ / จุดเข้าออก',m.address?'<span>'+esc(m.address)+'</span>':none)+
+      row('🕒','เวลาทำการ',hours?'<span>'+hours+'</span>':none)+
+      row('📞','จุดติดต่อ / คืนตู้',contact)+
+      row('📄','เอกสารที่ต้องเตรียม',docs)+
+      row('🔎','แหล่งข้อมูล / ตรวจสอบล่าสุด',m.source||m.checked?'<span>'+esc(m.source||'-')+(m.checked?' · ตรวจสอบเมื่อ '+esc(m.checked):'')+'</span>':(vs?'<span>'+esc(vs)+' · ข้อมูลอาจเปลี่ยนแปลง ควรโทรยืนยัน</span>':none))+
+      row('🗺️','แผนที่','<span><a class="mapbtn" href="'+esc(mapsUrl(f,m))+'" target="_blank" rel="noopener">เปิด Google Maps</a></span>');
+  }else{
+    const d=getPortDetails(z),h=d.hours||{},rc=d.returnContact||{},o=openState(h);
+    const nm=String(d.short||d.name||'').trim();
+    $('banner'+p).innerHTML=(nm&&nm!=='โซน '+z?esc(nm)+' · ':'')+esc(PORT_TYPES[z])+(o===null?'':'<span class="badge">'+(o?'เปิดอยู่ตอนนี้':'ปิดอยู่ตอนนี้')+'</span>');
+    let hrs=h.is24h?'เปิด 24 ชั่วโมง':(h.open&&h.close?esc(h.open)+' - '+esc(h.close):'');
+    if(hrs&&h.note)hrs+='<br>'+esc(h.note);
+    const none='<span>ยังไม่มีข้อมูล</span>';
+    const docs=(d.documents||[]).length?'<ul>'+d.documents.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':none;
+    const map=/^https?:\/\//.test(d.mapUrl||'')?'<br><a href="'+esc(d.mapUrl)+'" target="_blank" rel="noopener">เปิดแผนที่</a>':'';
+    const ret=(rc.place||rc.phone||rc.note)?'<span>'+[rc.place&&esc(rc.place),rc.phone&&'โทร <a href="tel:'+esc(String(rc.phone).replace(/[^0-9+]/g,''))+'">'+esc(rc.phone)+'</a>',rc.note&&esc(rc.note)].filter(Boolean).join('<br>')+'</span>':none;
+    $('info'+p).innerHTML=
+      row('🏢','ผู้ให้บริการ / บริษัท',d.operator?'<span>'+esc(d.operator)+'</span>':none)+
+      row('📍','พื้นที่ / ที่ตั้ง',d.location?'<span>'+esc(d.location)+'</span>':none)+
+      row('📍','ที่อยู่ / จุดเข้าออก',d.address?'<span>'+esc(d.address)+map+'</span>':none)+
+      row('📦','รายละเอียดการบริการ',d.service?'<span>'+esc(d.service)+'</span>':none)+
+      row('🕒','เวลาทำการ',hrs?'<span>'+hrs+'</span>':none)+
+      row('📦','ติดต่อ',ret)+
+      row('📄','เอกสารที่ต้องเตรียม',docs)+
+      row('🔎','แหล่งข้อมูล / ตรวจสอบล่าสุด',d.source||d.checked?'<span>'+esc(d.source||'-')+(d.checked?' · ตรวจสอบเมื่อ '+esc(d.checked):'')+'</span>':none);
+  }
+  list(z,p);
+}
+
+let repOpen={};
+const REP_LIMIT=5,REP_MAX=100;
+function repHTML(r){return '<div class="rep"><div class="rep-top"><span><i class="dot '+esc(r.status)+'"></i><b>'+esc(LABEL[r.status])+'</b></span>'+(r.wait!=null?'<span class="rep-wait">รอ '+fmtWait(r.wait)+'</span>':'')+'<span class="rep-time">'+ago(r.t)+'</span></div>'+(r.note?'<div class="rep-note">'+esc(r.note)+'</div>':'')+'</div>';}
+function list(z,p){
+  const a=zoneReports(z).filter(r=>Date.now()-r.t<DAY).reverse();
+  $('repcount'+p).textContent=a.length?a.length+' รายการใน 24 ชม.':'';
+  const box=$('replist'+p),btn=$('repall'+p);
+  if(!a.length){box.className='';box.innerHTML='<div class="empty">ยังไม่มีรายงานใน 24 ชั่วโมงที่ผ่านมา</div>';btn.hidden=true;return;}
+  const st=repOpen[p],open=!!(st&&st.z===z&&st.open)&&a.length>REP_LIMIT;
+  const shown=open?a.slice(0,REP_MAX):a.slice(0,REP_LIMIT);
+  box.className=open?'scroll':'';
+  box.innerHTML=shown.map(repHTML).join('')+(open&&a.length>REP_MAX?'<div class="empty">แสดง '+REP_MAX+' รายการล่าสุดจากทั้งหมด '+a.length+' รายการ</div>':'');
+  btn.hidden=a.length<=REP_LIMIT;
+  btn.textContent=open?'ซ่อนรายงานเก่า':'ดูรายงานอีก '+(Math.min(a.length,REP_MAX)-REP_LIMIT)+' รายการ';
+  btn.onclick=()=>{repOpen[p]={z,open:!open};list(z,p);};
+}
+const VS={ok:'พบใน Google Maps',maybe:'ชื่อใกล้เคียงใน Google',no:'ยังไม่พบใน Google Maps'};
+function phoneHTML(s){
+  return String(s||'').split(/\s*[,/]\s*/).map(x=>x.trim()).filter(x=>x&&x!=='ไม่มี').slice(0,3)
+    .map(x=>/^0\d{1,2}-\d{3}-\d{4}$/.test(x)?'<a href="tel:'+x.replace(/\D/g,'')+'">'+esc(x)+'</a>':esc(x)).join(', ');
+}
+function mapsUrl(f,m){
+  const r=(m&&m.mapUrl)||'';
+  if(/^https?:\/\//.test(r))return r;
+  if(f.pid)return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(f.gname||f.short||f.name)+'&query_place_id='+encodeURIComponent(f.pid);
+  return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent([f.short||f.name,f.location,f.city].filter(Boolean).join(' '));
+}
+const DEPOT_PAGE=12;
+let depotQ='',depotShown=DEPOT_PAGE,depotShowAll=false,_dix=null;
+function norm(s){return String(s==null?'':s).toLowerCase().replace(/[\s\-_.,()\/]+/g,' ').trim();}
+function depotIndex(){
+  if(_dix&&_dix.f===FACILITIES)return _dix.a;
+  const a=ICD_ACTIVE.map(z=>{const f=FACILITIES[z];return {z,h:norm([f.name,f.short,f.gname,f.alias,f.type,f.location,f.city,f.phone].join(' '))+' '+String(f.phone||'').replace(/\D/g,'')};});
+  _dix={a,f:FACILITIES};return a;
+}
+function searchDepots(q){
+  const toks=norm(q).split(' ').filter(Boolean),digits=String(q).replace(/\D/g,'');
+  return depotIndex().filter(d=>toks.every(t=>d.h.includes(t))||(digits.length>=4&&d.h.includes(digits))).map(d=>d.z);
+}
+function lastAny(z){const a=zoneReports(z),r=a[a.length-1];return r&&Date.now()-r.t<DAY?r:null;}
+function depotCard(z){
+  const f=FACILITIES[z],m=REMOTE_LOCATIONS[z]||{},r=lastAny(z),fresh=r&&Date.now()-r.t<STALE;
+  const ph=phoneHTML(m.contactPhone||f.phone);
+  const hours=m.is24h?'เปิด 24 ชั่วโมง':(m.hoursOpen&&m.hoursClose?m.hoursOpen+' - '+m.hoursClose:(f.hours||''));
+  const vs=VS[f.vs];
+  return '<article class="depot" data-z="'+esc(z)+'" data-st="'+(fresh?esc(r.status):'')+'">'+
+    '<div class="d-top"><h4>'+esc(f.short||f.name)+'</h4>'+(vs?'<span class="vbadge '+esc(f.vs)+'">'+esc(vs)+'</span>':'')+'</div>'+
+    '<p>'+esc(f.type)+'</p><p>📍 '+esc([f.location,f.city].filter(Boolean).join(' · '))+'</p>'+
+    (ph?'<p>📞 '+ph+'</p>':'')+(hours?'<p>🕒 '+esc(hours)+'</p>':'')+
+    '<div class="depot-foot"><span class="statusline'+(r?'':' muted')+'">'+(r?dotStatus(r)+(fresh?'':' · เกิน '+STALE_HOURS+' ชม.'):'ยังไม่มีรายงานใน 24 ชม.')+'</span></div>'+
+    '<div class="d-actions"><button type="button" class="secondary d-view">ดูรายงานล่าสุด</button><button type="button" class="secondary d-rep">รายงานลานนี้</button>'+
+    '<a class="secondary d-map" href="'+esc(mapsUrl(f,m))+'" target="_blank" rel="noopener">เปิด Google Maps</a></div></article>';
+}
+function renderDepots(){
+  const box=$('depotResults');if(!box)return;
+  const q=depotQ.trim();let zs;
+  if(q){
+    zs=searchDepots(q).sort((a,b)=>((lastAny(b)||{}).t||0)-((lastAny(a)||{}).t||0));
+    $('depotHead').textContent=zs.length?'พบ '+zs.length+' ลาน':'ไม่พบลานที่ค้นหา ลองพิมพ์ชื่อย่อ พื้นที่ หรือเบอร์โทร';
+  }else if(depotShowAll){
+    zs=ICD_ACTIVE.slice().sort((a,b)=>a.localeCompare(b,'th'));
+    $('depotHead').textContent='แสดงลานตู้ทั้งหมด '+zs.length+' ลาน';
+  }else{
+    zs=ICD_ZONES.filter(z=>lastAny(z)).sort((a,b)=>lastAny(b).t-lastAny(a).t);
+    $('depotHead').textContent=zs.length?'ลานที่มีรายงานใน 24 ชั่วโมง ('+zs.length+' ลาน) · กด “แสดงลานตู้ทั้งหมด” เพื่อดูทุกลาน':'ยังไม่มีลานที่มีรายงานใน 24 ชั่วโมง · กด “แสดงลานตู้ทั้งหมด” หรือพิมพ์ค้นหาชื่อลาน';
+  }
+  box.innerHTML=zs.slice(0,depotShown).map(depotCard).join('');
+  const more=$('depotMore');more.hidden=zs.length<=depotShown;more.textContent='แสดงเพิ่ม (อีก '+(zs.length-depotShown)+' ลาน)';
+  $('depotAll').textContent=depotShowAll?'แสดงเฉพาะลานที่มีรายงาน':'แสดงลานตู้ทั้งหมด';
+}
+
+
+// รายชื่อรหัสสถานที่ตามภาพเอกสารที่ผู้ใช้อัปโหลด
+const CUSTOMS_CODES = {
+  discharge: [
+    ['2801','ฝ่ายพิธีการกลาง (สกบ. สทบ.)'],
+    ['2811','ท่าเรือบ. LAEM CHABANG CONTAINER (สทบ.)'],
+    ['2812','ท่าเรือกลุ่ม GREEN SIAM (สทบ.)'],
+    ['2813','ท่าเรือกลุ่ม ESCO (สทบ.)'],
+    ['2814','ท่าเรือกลุ่ม TIPS (สทบ.)'],
+    ['2815','ท่าเรือบ.แหลมฉบังอินเตอร์ฯ (สทบ.)'],
+    ['2816','ท่าเรือบ.SIAM SEAPORT TERMINAL (สทบ.)'],
+    ['2817','ท่าเรือบ.ศรีราชาฮาร์เบอร์ จก. (สทบ.)'],
+    ['2818','ท่าเรือบ.นามยงเทอร์มินัล (A5) (สทบ.)'],
+    ['2820','ท่าเทียบเรือซี 3 ท่าเรือแหลมฉบัง (สทบ.)'],
+    ['2821','ท่าเทียบเรือ 2 ท่าเรือแหลมฉบัง (สทบ.)'],
+    ['2822','ท่าเรือบ.แหลมฉบังครูซเซ็นเตอร์ (A1)'],
+    ['2826','คลังสินค้าอันตราย (สทบ.)'],
+    ['2827','งานตรวจ OVERSIDE (สทบ.)'],
+    ['2828','รพท.บ.เคอรี่สยามพีออร์ต จำกัด (สทบ.)'],
+    ['2829','ท่าเรือบ.อัทธิสันเทอร์มินัล (A3) (สทบ.)'],
+    ['2830','ท่าเรือบ.อ่าวไทยคลังสินค้า (A4) (สทบ.)'],
+    ['2835','ท่าเรือ LCMT (A0) (สทบ.)'],
+    ['2836','ท่าเรืออีทซิสันแหลมฉบังฯ (C1&C2) (สทบ.)'],
+    ['2837','งานตรวจปล่อยสินค้าขนถ่ายข้างลำ (กลางน้ำ) (สทบ.)'],
+    ['2838','ทำเนียบท่าเรือและรพส.แหลมฉบังอินเตอร์เนชั่นแนลโร่ เทอร์มินัล จก. (สทบ.)'],
+    ['2851','ฝ่ายบริการศุลกากร ที่ 5 (PETROLIEM) (สทบ.)'],
+    ['2861','ฝ่ายทบทวนหลังการตรวจปล่อย (สทบ.)'],
+    ['2862','ฝ่ายของกลางและของตกค้าง (สทบ.)']
+  ],
+  load: [
+    ['2810','ท่าจอดเรือภายนอกเกาะสีชัง (สทบ.)'],
+    ['2811','ท่าเรือบ.LAEM CHABANG CONTAINER (สทบ.)'],
+    ['2812','ท่าเรือกลุ่ม GREEN SIAM (สทบ.)'],
+    ['2813','ท่าเรือกลุ่ม ESCO (สทบ.)'],
+    ['2814','ท่าเรือกลุ่ม TIPS (สทบ.)'],
+    ['2815','ท่าเรือบ.แหลมฉบังอินเตอร์ฯ (สทบ.)'],
+    ['2816','ท่าเรือบ.SIAM SEAPORT TERMINAL (สทบ.)'],
+    ['2817','ท่าเรือบ.ศรีราชาฮาร์เบอร์ จก. (สทบ.)'],
+    ['2818','ท่าเรือบ.นามยงเทอร์มินัล (A5) (สทบ.)'],
+    ['2820','ท่าเทียบเรือซี 3 ท่าเรือแหลมฉบัง (สทบ.)'],
+    ['2821','ท่าเทียบเรือ 2 ท่าเรือแหลมฉบัง (สทบ.)'],
+    ['2822','ท่าเรือบ.แหลมฉบังครูซเซ็นเตอร์ (A1)'],
+    ['2826',''],
+    ['2827',''],
+    ['2828','รพท.บ.เคอรี่สยามพีออร์ต จำกัด (สทบ.)'],
+    ['2829','ท่าเรือบ.อัทธิสันเทอร์มินัล (A3) (สทบ.)'],
+    ['2830','ท่าเรือบ.อ่าวไทยคลังสินค้า (A4) (สทบ.)'],
+    ['2835','ท่าเรือ LCMT (A0) (สทบ.)'],
+    ['2836','ท่าเรืออีทซิสันแหลมฉบังฯ (C1&C2) (สทบ.)'],
+    ['2837','งานตรวจปล่อยสินค้าขนถ่ายข้างลำ (กลางน้ำ) (สทบ.)'],
+    ['2838','ทำเนียบท่าเรือและรพส.แหลมฉบังอินเตอร์เนชั่นแนลโร่ เทอร์มินัล จก. (สทบ.)'],
+    ['2851','ฝ่ายบริการศุลกากร ที่ 5 (PETROLIEM) (สทบ.)']
+  ]
+};
+let portCodeQuery='',portCodeShowAll=false;
+function renderPortCodes(){
+  const q=norm(portCodeQuery);
+  const results=$('portCodeResults');
+  results.hidden=!q&&!portCodeShowAll;
+  if(results.hidden)return;
+  const filter=arr=>arr.filter(([code,name])=>!q||norm(code+' '+name).includes(q));
+  const d=filter(CUSTOMS_CODES.discharge),l=filter(CUSTOMS_CODES.load);
+  const draw=arr=>arr.map(([code,name])=>'<div class="code-row"><span class="code-num">'+esc(code)+'</span><span>'+(name?esc(name):'<span class="muted">ไม่มีชื่อระบุในเอกสาร</span>')+'</span></div>').join('')||'<div class="empty">ไม่พบข้อมูลที่ค้นหา</div>';
+  $('dischargeResults').innerHTML=draw(d);$('loadResults').innerHTML=draw(l);
+  $('portCodeCount').textContent=q?'พบ '+d.length+' รายการใน Discharge และ '+l.length+' รายการใน Load':'Discharge '+d.length+' รหัส · Load '+l.length+' รหัส';
+  $('portCodeAll').textContent=portCodeShowAll&&!q?'ซ่อนทั้งหมด':'แสดงทั้งหมด';
+}
+
+const ORDER={jam:0,busy:1,clear:2};
+function dashboard(kind){
+  const zs=kind==='icd'?ICD_ZONES:PORT_ZONES;
+  const prefix=kind==='icd'?'icd':'port';
+  const rows=zs.map(z=>({z,r:latest(z)})).filter(x=>x.r&&LABEL[x.r.status]);
+  const c={clear:0,busy:0,jam:0};rows.forEach(x=>c[x.r.status]++);
+  const waits=rows.map(x=>x.r.wait).filter(v=>typeof v==='number'&&Number.isFinite(v));
+  const avg=waits.length?Math.round(waits.reduce((a,b)=>a+b,0)/waits.length):null;
+  const max=waits.length?Math.max(...waits):null;
+  $(prefix+'Kpi').innerHTML=[['จุดที่มีรายงาน',rows.length],['จุดหนาแน่น',c.jam],['เวลารอเฉลี่ย',avg==null?'-':fmtWait(avg)],['รอนานที่สุด',max==null?'-':fmtWait(max)]].map(k=>'<div class="kpi"><b>'+k[1]+'</b><span>'+k[0]+'</span></div>').join('');
+  $(prefix+'Bar').innerHTML=rows.length?['clear','busy','jam'].map(s=>'<i class="'+s+'" style="width:'+(c[s]/rows.length*100)+'%" title="'+LABEL[s]+' '+c[s]+'"></i>').join(''):'';
+  rows.sort((a,b)=>b.r.t-a.r.t);
+  if(!rows.length){$(prefix+'Table').innerHTML='<div class="empty">ยังไม่มีรายงานในช่วง '+STALE_HOURS+' ชั่วโมงที่ผ่านมา</div>';return;}
+  const isDepot=kind==='icd';
+  const head=isDepot?'<th>ลานตู้ / บริษัท</th><th>พื้นที่</th>':'<th>โซน</th><th>ประเภท</th>';
+  const body=rows.map(x=>{const f=FACILITIES[x.z];return `<tr data-z="${esc(x.z)}"><td><b>${esc(isDepot?f.short:x.z)}</b></td><td>${esc(isDepot?f.city:PORT_TYPES[x.z])}</td><td><i class="dot ${esc(x.r.status)}"></i>${esc(LABEL[x.r.status])}</td><td>${x.r.wait==null?'-':fmtWait(x.r.wait)}</td><td>${ago(x.r.t)}</td></tr>`;}).join('');
+  $(prefix+'Table').innerHTML='<table><thead><tr>'+head+'<th>สถานะ</th><th>เวลารอ</th><th>อัปเดต</th></tr></thead><tbody>'+body+'</tbody></table>';
+}
+function summary(){
+  const c={jam:0,busy:0,clear:0};let n=0;
+  ALL_ZONES.forEach(z=>{const r=latest(z);if(r&&LABEL[r.status]){c[r.status]++;n++;}});
+  $('summary').innerHTML=n?'<span><i class="dot jam"></i>หนาแน่น '+c.jam+'</span><span><i class="dot busy"></i>ปานกลาง '+c.busy+'</span><span><i class="dot clear"></i>คล่องตัว '+c.clear+'</span><span class="muted"><i class="dot none"></i>ไม่มีรายงาน '+(ALL_ZONES.length-n)+'</span>':'<span class="muted">ยังไม่มีรายงานใน '+STALE_HOURS+' ชั่วโมงที่ผ่านมา</span>';
+}
+function dots(){
+  document.querySelectorAll('.zone').forEach(b=>{const r=latest(b.dataset.zone);if(r)b.dataset.status=r.status;else b.removeAttribute('data-status');});
+  renderDepots();dashboard('port');dashboard('icd');updateReportGoal();summary();
+}
+
+function setupSelect(){
+  const cnt={};ICD_ACTIVE.forEach(z=>{const k=FACILITIES[z].short||FACILITIES[z].name;cnt[k]=(cnt[k]||0)+1;});
+  const opt=z=>{const f=FACILITIES[z],k=f.short||f.name;return '<option value="'+esc(z)+'">'+esc(k+(cnt[k]>1?' ('+(f.city==='กรุงเทพมหานคร'?'กทม.':'ชลบุรี')+')':''))+'</option>';};
+  const bk=ICD_ACTIVE.filter(z=>FACILITIES[z].city==='กรุงเทพมหานคร'),ch=ICD_ACTIVE.filter(z=>FACILITIES[z].city!=='กรุงเทพมหานคร');
+  $('rzone').innerHTML='<optgroup label="หมวดที่ 1 · ท่าเรือแหลมฉบัง (โซนเดิม)">'+PORT_ZONES.map(z=>'<option value="'+z+'">'+z+' · '+PORT_TYPES[z]+'</option>').join('')+'</optgroup>'+
+    '<optgroup label="หมวดที่ 2 · ลานตู้ กรุงเทพมหานคร">'+bk.map(opt).join('')+'</optgroup>'+
+    '<optgroup label="หมวดที่ 2 · ลานตู้ ชลบุรี">'+ch.map(opt).join('')+'</optgroup>';
+}
+
+
+function getPortDetails(id){
+  const base=Object.assign({},DATA[id]||{});
+  const r=REMOTE_LOCATIONS[id];
+  if(!r)return base;
+  if(r.edited){
+    return {name:r.name||'',short:r.short||'',type:r.type||'',location:r.location||'',city:r.city||'',operator:r.operator||'',address:r.address||'',mapUrl:r.mapUrl||'',source:r.source||'',checked:r.checked||'',documents:Array.isArray(r.documents)?r.documents:[],hours:{open:r.hoursOpen||'',close:r.hoursClose||'',is24h:!!r.is24h},returnContact:{place:r.contactPlace||'',phone:r.contactPhone||'',note:r.contactNote||''},service:r.service||''};
+  }
+  if(r.name)base.name=r.name;if(r.short)base.short=r.short;if(r.location)base.location=r.location;
+  if(r.operator)base.operator=r.operator;
+  if(r.address)base.address=r.address;
+  if(r.mapUrl)base.mapUrl=r.mapUrl;
+  if(r.source)base.source=r.source;
+  if(r.checked)base.checked=r.checked;
+  if(r.documents&&r.documents.length)base.documents=r.documents;
+  if(r.hoursOpen||r.hoursClose||r.is24h)base.hours={...(base.hours||{}),open:r.hoursOpen||'',close:r.hoursClose||'',is24h:!!r.is24h};
+  const rc={...(base.returnContact||{})};
+  if(r.contactPlace)rc.place=r.contactPlace;if(r.contactPhone)rc.phone=r.contactPhone;if(r.contactNote)rc.note=r.contactNote;
+  if(Object.keys(rc).length)base.returnContact=rc;
+  if(r.service)base.service=r.service;
+  return base;
+}
+function applyLocations(rows){
+  if(!Array.isArray(rows)||!rows.length)return;
+  const nextTypes={...DEFAULT_PORT_TYPES};
+  const nextFacilities=JSON.parse(JSON.stringify(DEFAULT_FACILITIES));
+  const nextRemote={};
+  rows.forEach(r=>{
+    if(!r||!r.id)return;nextRemote[r.id]=r;
+    if(r.category==='port'&&nextTypes[r.id]){if(r.type)nextTypes[r.id]=r.type;}
+    if(r.category==='icd'&&nextFacilities[r.id]){
+      const f=nextFacilities[r.id];
+      ['name','short','type','location','service','city'].forEach(k=>{if(r.edited)f[k]=r[k]||'';else if(r[k])f[k]=r[k];});
+    }
+  });
+  PORT_TYPES=nextTypes;FACILITIES=nextFacilities;REMOTE_LOCATIONS=nextRemote;
+  setupSelect();renderDepots();
+}
+function updateReportGoal(){
+  const now=new Date();const start=new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
+  const count=(cloudReady?cloudReports:[]).filter(r=>r.t>=start&&r.t<=Date.now()).length;
+  if($('reportCount'))$('reportCount').textContent=count+' / '+DAILY_GOAL;
+  if($('reportGoalBar'))$('reportGoalBar').style.width=Math.min(100,count/DAILY_GOAL*100)+'%';
+  if($('reportGoalText'))$('reportGoalText').textContent=count>=DAILY_GOAL?'ถึงเป้าหมาย '+DAILY_GOAL+' รายงานต่อวันแล้ว ขอบคุณที่ช่วยกันรายงาน':'เป้าหมาย '+DAILY_GOAL+' รายงานต่อวัน';
+}
+let sendTimer=null;
+function markSent(){
+  const b=$('send');b.textContent='ส่งแล้ว ✓';b.classList.add('sent');
+  clearTimeout(sendTimer);
+  sendTimer=setTimeout(()=>{b.textContent='ส่งรายงานสถานการณ์';b.classList.remove('sent');},60000);
+}
+function goSummary(z){
+  const box=$(isICD(z)?'icdDashboard':'portDashboard');
+  box.scrollIntoView({behavior:'smooth',block:'start'});
+  const tr=box.querySelector('tr[data-z="'+z+'"]');
+  if(tr){tr.classList.add('flash');setTimeout(()=>tr.classList.remove('flash'),2500);}
+}
+function makeId(){return 'r-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10);}
+function setMessage(text,kind){$('msg').className='msg '+(kind||'');$('msg').textContent=text;}
+function postToAppsScript(payload){
+  if(!SHEETS_WEB_APP_URL)throw new Error('ยังไม่ได้ตั้งค่า URL');
+  const id=payload.report?payload.report.id:(payload.requestId||makeId());
+  const frame=document.createElement('iframe');frame.name='tp-post-'+id;frame.style.display='none';frame.setAttribute('aria-hidden','true');document.body.appendChild(frame);
+  const form=document.createElement('form');form.method='POST';form.action=SHEETS_WEB_APP_URL;form.target=frame.name;form.style.display='none';
+  const field=document.createElement('input');field.type='hidden';field.name='payload';field.value=JSON.stringify(payload);form.appendChild(field);document.body.appendChild(form);form.submit();
+  setTimeout(()=>{form.remove();frame.remove();},30000);
+}
+function sendToSheets(report){
+  if(!SHEETS_WEB_APP_URL)return;
+  try{postToAppsScript({action:'report',report});pendingIds.add(report.id);pendingSentAt[report.id]=Date.now();setTimeout(()=>syncFromSheet(true),2500);}
+  catch(e){setMessage('บันทึกในเครื่องแล้ว แต่ส่งไป Google Sheets ไม่สำเร็จ: '+e.message,'err');}
+}
+
+function syncFromSheet(force){
+  if(!SHEETS_WEB_APP_URL){$('syncStatus').className='sync-state offline';$('syncStatus').textContent='โหมดในเครื่อง · ยังไม่เชื่อม Google Sheets';return;}
+  if(syncBusy)return;if(!force&&lastSyncAt&&Date.now()-lastSyncAt<10000)return;
+  syncBusy=true;
+  const callback='tpSheetCallback_'+Date.now()+'_'+Math.floor(Math.random()*100000);
+  const script=document.createElement('script');
+  let finished=false;
+  const finish=()=>{if(finished)return;finished=true;syncBusy=false;script.remove();try{delete window[callback];}catch(e){window[callback]=undefined;}};
+  const timeout=setTimeout(()=>{finish();pollFails++;$('syncStatus').className='sync-state offline';$('syncStatus').textContent='เชื่อมต่อชีตไม่สำเร็จ · [รหัส T] ไม่มีคำตอบกลับภายใน 30 วินาที';},30000);
+  window[callback]=(data)=>{
+    clearTimeout(timeout);
+    if(!data||data.ok!==true||!Array.isArray(data.reports)){finish();pollFails++;$('syncStatus').className='sync-state offline';$('syncStatus').textContent='ได้รับข้อมูลจากชีตไม่ถูกต้อง';return;}
+    cloudReports=data.reports.map(normalizeReport).filter(r=>r&&Date.now()-r.t<1.5*DAY);invalidate();cloudReady=true;lastSyncAt=Date.now();pollFails=0;
+    if(Array.isArray(data.locations)) applyLocations(data.locations);
+    const cloudIds=new Set(cloudReports.map(r=>r.id));
+    let confirmedReport=false;
+    pendingIds.forEach(id=>{if(cloudIds.has(id)){pendingIds.delete(id);delete pendingSentAt[id];confirmedReport=true;}});
+    finish();
+    $('syncStatus').className='sync-state online';
+    $('syncStatus').textContent='เชื่อมต่อแล้ว อัปเดต '+new Date(lastSyncAt).toLocaleTimeString('th-TH');
+    dots();render(cur);updateReportGoal();
+    if(confirmedReport)setMessage('บันทึกรายงานลง Google Sheets สำเร็จแล้ว','ok');
+    Object.keys(pendingSentAt).forEach(id=>{if(Date.now()-pendingSentAt[id]>20000){delete pendingSentAt[id];pendingIds.delete(id);if($('msg').textContent.includes('กำลังส่ง'))setMessage('ยังไม่พบรายงานใน Google Sheets · ตรวจสอบ Executions ของ Apps Script','err');}});
+  };
+  script.onerror=()=>{clearTimeout(timeout);finish();pollFails++;$('syncStatus').className='sync-state offline';$('syncStatus').textContent='เชื่อมต่อชีตไม่สำเร็จ · [รหัส E] เบราว์เซอร์โหลดสคริปต์จาก Google ไม่ได้';};
+  window.addEventListener('error',function onErr(ev){if(ev&&ev.filename&&ev.filename.indexOf('script.google')>=0){window.removeEventListener('error',onErr);}},{once:true});
+  script.src=SHEETS_WEB_APP_URL+(SHEETS_WEB_APP_URL.includes('?')?'&':'?')+'action=list&since='+(Date.now()-1.5*DAY)+'&callback='+callback+'&_='+Date.now();
+  document.head.appendChild(script);
+}
+
+function submitReport(){
+  const st=document.querySelector('input[name="st"]:checked');
+  const w=$('rwait').value.trim();
+  if(!st){setMessage('กรุณาเลือกสถานะรถ','err');return;}
+  const unit=document.querySelector('input[name="unit"]:checked').value;
+  const num=w===''?null:Number(w);
+  const wait=num===null?null:Math.round(unit==='hr'?num*60:num);
+  if(wait!==null&&(!Number.isFinite(wait)||wait<0||wait>600)){setMessage('เวลารอต้องไม่เกิน 10 ชั่วโมง (600 นาที)','err');return;}
+  const z=$('rzone').value;
+  if(readLocal().some(r=>r.zone===z&&Date.now()-r.t<60000)){setMessage('คุณเพิ่งรายงานจุดนี้ไปเมื่อสักครู่ กรุณารอ 1 นาทีแล้วลองใหม่','err');return;}
+  const report={id:makeId(),category:categoryOf(z),zone:z,facility:labelOf(z),status:st.value,wait,note:$('rnote').value.trim().slice(0,140),t:Date.now()};
+  const local=readLocal();local.push(report);
+  if(!writeLocal(local)){setMessage('พื้นที่จัดเก็บในเบราว์เซอร์เต็ม ไม่สามารถบันทึกรายงานได้','err');return;}
+  document.querySelectorAll('input[name="st"]').forEach(el=>el.checked=false);$('rnote').value='';$('rwait').value='';
+  if(SHEETS_WEB_APP_URL){setMessage('รับรายงานแล้ว · กำลังส่งไปบันทึกใน Google Sheets…','ok');sendToSheets(report);}else{setMessage('บันทึกรายงานในเบราว์เซอร์นี้แล้ว · ยังไม่ได้เชื่อม Google Sheets','ok');}
+  dots();render(z);updateReportGoal();markSent();goSummary(z);
+}
+
+// Events
+$('rzone').addEventListener('change',e=>render(e.target.value));
+document.querySelectorAll('.zone').forEach(b=>b.addEventListener('click',()=>render(b.dataset.zone)));
+const menuToggle=$('systemMenuToggle'),systemMenu=$('systemMenu');
+function closeSystemMenu(){systemMenu.hidden=true;menuToggle.setAttribute('aria-expanded','false');menuToggle.setAttribute('aria-label','เปิดเมนูระบบ');}
+menuToggle.addEventListener('click',()=>{systemMenu.hidden=!systemMenu.hidden;menuToggle.setAttribute('aria-expanded',String(!systemMenu.hidden));menuToggle.setAttribute('aria-label',systemMenu.hidden?'เปิดเมนูระบบ':'ปิดเมนูระบบ');if(!systemMenu.hidden)systemMenu.querySelector('a').focus();});
+systemMenu.addEventListener('click',e=>{if(e.target.closest('a'))closeSystemMenu();});
+document.addEventListener('click',e=>{if(!systemMenu.hidden&&!e.target.closest('.head-actions'))closeSystemMenu();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!systemMenu.hidden){closeSystemMenu();menuToggle.focus();}});
+let dTimer=null;
+$('depotSearch').addEventListener('input',e=>{clearTimeout(dTimer);dTimer=setTimeout(()=>{depotQ=e.target.value;depotShown=DEPOT_PAGE;renderDepots();},150);});
+$('depotMore').addEventListener('click',()=>{depotShown+=DEPOT_PAGE;renderDepots();});
+$('depotAll').addEventListener('click',()=>{depotShowAll=!depotShowAll;depotShown=depotShowAll?9999:DEPOT_PAGE;renderDepots();});
+$('portCodeSearch').addEventListener('input',e=>{portCodeQuery=e.target.value;portCodeShowAll=false;renderPortCodes();});
+$('portCodeAll').addEventListener('click',()=>{if(portCodeQuery){portCodeQuery='';$('portCodeSearch').value='';portCodeShowAll=true;}else portCodeShowAll=!portCodeShowAll;renderPortCodes();});
+$('depotResults').addEventListener('click',e=>{
+  const c=e.target.closest('.depot[data-z]');if(!c||e.target.closest('a'))return;
+  const z=c.dataset.z;
+  if(e.target.closest('.d-rep')){$('rzone').value=z;$('reportAnchor').scrollIntoView({behavior:'smooth',block:'start'});$('rzone').focus({preventScroll:true});}
+  else openDepot(z);
+});
+$('portTable').addEventListener('click',e=>{const tr=e.target.closest('tr[data-z]');if(tr){render(tr.dataset.z);window.scrollTo({top:0,behavior:'smooth'});}});
+$('icdTable').addEventListener('click',e=>{const tr=e.target.closest('tr[data-z]');if(tr)openDepot(tr.dataset.z);});
+$('send').addEventListener('click',submitReport);
+document.querySelectorAll('input[name="unit"]').forEach(el=>el.addEventListener('change',()=>{$('rwait').placeholder=el.value==='hr'?'เช่น 1.5':'เช่น 45';}));
+document.querySelectorAll('[data-rh]').forEach(btn=>btn.addEventListener('click',()=>{const m=btn.id==='reportHereM';$('rzone').value=m?curM:curP;if(m)$('depotModal').hidden=true;$('reportAnchor').scrollIntoView({behavior:'smooth',block:'start'});$('rzone').focus({preventScroll:true});}));
+const closeRep=()=>{$('depotModal').hidden=true;};
+$('depotClose').addEventListener('click',closeRep);
+$('depotModal').addEventListener('click',e=>{if(e.target===$('depotModal'))closeRep();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeRep();});
+window.addEventListener('focus',()=>syncFromSheet());
+
+function schedulePoll(){
+  const delay=SHEET_POLL_MS*Math.min(4,1+pollFails)*(0.8+Math.random()*0.4);
+  setTimeout(()=>{if(!document.hidden)syncFromSheet();schedulePoll();},delay);
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){dots();render(cur);syncFromSheet();}});
+setupSelect();dots();render('A0');renderPortCodes();syncFromSheet(true);
+setInterval(()=>{dots();render(cur);},60000);
+schedulePoll();
+</script>
+</body>
+</html>
