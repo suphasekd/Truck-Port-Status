@@ -1,0 +1,67 @@
+:root{--ink:#152b40;--muted:#617284;--line:#dce3e9;--accent:#173d5e;--accent-d:#102b46;--glass-line:#dce3e9;--shadow:none}
+body{background:#f1f4f7;color:#152b40}
+main{max-width:1280px;padding:26px 28px 48px}
+.site-header{position:sticky;top:0;z-index:500;background:#102b46;color:#fff;border-bottom:1px solid #263f56}
+.site-head-inner{max-width:1280px;min-height:72px;margin:auto;padding:0 28px;display:flex;align-items:center;gap:32px}
+.brand{display:flex;align-items:center;gap:11px;color:#fff;text-decoration:none;flex:none}
+.brand-mark{width:38px;height:38px;display:grid;place-items:center;background:#fff;color:#102b46;font-size:22px;font-weight:800;border-radius:4px}
+.brand-name{display:block;font-size:18px;line-height:1.15;font-weight:800;letter-spacing:.04em}
+.brand-caption{display:block;margin-top:3px;color:#c6d3de;font-size:10px;letter-spacing:.08em}
+.primary-nav{display:flex;align-items:center;gap:24px;flex:1}
+.primary-nav a{color:#e3ebf2;text-decoration:none;font-size:14px;white-space:nowrap}
+.primary-nav a:hover,.primary-nav a:focus-visible{color:#fff;text-decoration:underline;text-underline-offset:5px}
+.head-actions{position:relative;margin-left:auto;display:flex;align-items:center;gap:10px}
+.header-home,.header-report{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 15px;background:#fff;color:#102b46;border-radius:4px;text-decoration:none;font-size:14px;font-weight:700;white-space:nowrap}
+.header-home:hover,.header-report:hover{background:#e8eef3}
+.menu-toggle{display:none;border:1px solid #698096;background:transparent;color:#fff;border-radius:4px}
+.system-menu{top:calc(100% + 10px);background:#fff}
+.hero{min-height:390px;margin:0 0 24px;padding:42px 44px 26px;border:0;border-radius:4px;color:#fff;background-color:#102b46;background-image:linear-gradient(90deg,rgba(9,31,53,.9) 0%,rgba(9,31,53,.75) 47%,rgba(9,31,53,.2) 100%),url("https://images.unsplash.com/photo-1494412519320-aa613dfb7738?auto=format&fit=crop&w=2000&q=85");background-position:center 48%;background-size:cover;box-shadow:none}
+.hero h1{max-width:680px;margin:8px 0 8px;color:#fff;font-family:"IBM Plex Sans Thai",Tahoma,sans-serif;font-size:34px;letter-spacing:0;font-weight:700;line-height:1.35}
+.hero-kicker{font-size:12px;font-weight:600;letter-spacing:.13em;color:#d4e0ea}
+.hero-copy{max-width:710px}
+.hero-copy>p{margin:0 0 22px;color:#e3ebf2;font-size:15px}
+.hero-status{display:flex;align-items:center;gap:12px;margin-top:10px}
+.live-label{display:inline-flex;align-items:center;gap:7px;color:#fff;font-size:12px;white-space:nowrap}
+.live-label i{width:8px;height:8px;border-radius:50%;background:#79ba70}
+.summary{min-height:34px;padding:5px 10px;border:1px solid rgba(255,255,255,.35);border-radius:3px;background:rgba(9,31,53,.52);color:#fff;font-size:12px}
+.summary .muted{color:#d5e0e8}
+.summary .dot{width:8px;height:8px}
+.layout{grid-template-columns:minmax(0,1.55fr) minmax(290px,.85fr);gap:14px}
+.card{border:1px solid #dce3e9;border-radius:4px;box-shadow:none}
+.layout>.card:first-child,#portDashboard,#icdDashboard,#icdDepots,#customsCodes,.report .card{background:#fff;border-color:#dce3e9}
+.layout>.card:first-child .cardhead,#icdDepots .section-head,#customsCodes .section-head{background:#f5f7f9}
+.cardhead,.section-head,.section-body,.details,.dash,.report .card{border-radius:0}
+.cardhead{padding:16px 18px 4px}
+.cardhead h2,.dash h2,.section-head h2,.report h2{color:#152b40!important}
+.map{min-width:560px;border-radius:3px}
+.selbig{border-radius:3px;background:#173d5e}
+.banner{border-left-color:#173d5e}
+.btn,button.go,.row a.mapbtn{border-radius:3px;background:#173d5e;box-shadow:none}
+.btn:hover,button.go:hover{background:#102b46}
+.secondary{border-radius:3px;color:#173d5e}
+.details .btn{width:auto;display:block}
+.note{border-radius:3px;background:#f4f6f8}
+.dash{margin-top:14px;padding:18px}
+.kpi{border-color:#dce3e9;border-radius:3px;background:#f7f9fa}
+.bar{border-radius:2px}
+.report-today,.depot,.code-side,.code-side h3,.modal-box{border-radius:3px}
+.report-heading{margin:-16px -18px 16px;padding:16px 18px;background:#eef5fb;border-left:4px solid #173d5e;border-bottom:1px solid #dce7f0}
+.report-heading h2{margin:0 0 2px}
+.report-heading .muted{color:#617284}
+.depot{border-color:#dce3e9;background:#fff}
+.depot:hover{background:#f5f7f9}
+.report .card{border-radius:4px}
+.latest-news{margin-top:14px;padding:20px;background:#fff}
+.news-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 22px}
+.news-item{display:grid;grid-template-columns:92px minmax(0,1fr);gap:12px;padding:14px 0;border-bottom:1px solid #e3e8ed}
+.news-date{color:#617284;font-size:12px}
+.news-category{display:inline-block;margin-top:4px;padding:2px 6px;background:#eef2f5;color:#42596d;font-size:11px}
+.news-title{margin:0 0 3px;color:#152b40;font-size:14px;font-weight:700}
+.news-summary{margin:0;color:#617284;font-size:13px;overflow-wrap:anywhere}
+.news-open{display:inline-block;margin-top:4px;color:#173d5e;font-size:12px;font-weight:600;text-decoration:none}
+.news-empty{padding:16px 0;color:#617284;font-size:13px}
+select:focus,input:focus,textarea:focus,button:focus-visible,a:focus-visible{outline-color:#92b5cf}
+@media(max-width:1000px){.site-head-inner{gap:16px}.primary-nav{display:none}.menu-toggle{display:inline-flex}}
+@media(max-width:760px){.site-head-inner{min-height:64px;padding:0 18px}.header-home,.header-report{min-height:38px;padding:0 10px;font-size:12px}.hero{min-height:0;padding:30px 24px 20px}.hero h1{font-size:28px}.hero-status{align-items:flex-start;flex-direction:column;gap:6px}.layout{grid-template-columns:1fr}}
+@media(max-width:600px){main{padding:18px 14px 36px}.site-head-inner{gap:10px;padding:0 12px}.head-actions{gap:6px}.brand-mark{width:34px;height:34px}.brand-name{font-size:16px}.brand-caption{font-size:9px}.header-home,.header-report{max-width:90px;min-height:36px;padding:0 6px;font-size:11px;white-space:nowrap;line-height:1.2;text-align:center}.header-report{display:none}.menu-toggle{gap:5px;padding:7px 8px;font-size:12px}.hero{padding:24px 16px 18px;background-position:60% center}.hero h1{font-size:24px}.summary{gap:4px 10px}.news-grid{grid-template-columns:1fr}.news-item{grid-template-columns:78px minmax(0,1fr);gap:8px}.latest-news{padding:14px}.map{min-width:560px}}
+@media(max-width:600px){.mapwrap{overflow:visible}.map{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;min-width:0;width:auto;aspect-ratio:auto;margin:8px 10px 4px;padding:10px}.map .sea,.map .ship,.map .arrow,.map .wave,.map .wavelabel{display:none}.map .maphint{position:static;grid-column:1/-1;width:auto;margin:0 0 2px;padding:8px 10px;box-shadow:none}.map .zone{position:static;left:auto;top:auto;width:auto;height:44px;min-width:0;min-height:44px;padding:4px 2px;border:1px solid #fff;border-radius:3px;transform:none;font-size:12px}.map .zone.a5{font-size:16px}}
