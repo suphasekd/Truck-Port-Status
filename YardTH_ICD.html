@@ -355,7 +355,7 @@ body[data-page="icd"] #portSystem,body[data-page="icd"] #portDashboard,body[data
     <div id="sharedStatusPicker"><label>สถานะตอนนี้</label>
     <div class="opts"><label><input type="radio" name="st" value="clear"><span><i class="dot clear"></i>คล่องตัว</span></label><label><input type="radio" name="st" value="busy"><span><i class="dot busy"></i>ปานกลาง</span></label><label><input type="radio" name="st" value="jam"><span><i class="dot jam"></i>หนาแน่น</span></label></div>
     </div>
-    <label for="rnote">หมายเหตุ (ไม่บังคับ)</label><input id="rnote" maxlength="140" placeholder="เช่น คิวยาวถึงแยกหน้าประตู / ช่องรับตู้เต็ม">
+    <div id="sharedNoteField"><label for="rnote">หมายเหตุ (ไม่บังคับ)</label><input id="rnote" maxlength="140" placeholder="เช่น คิวยาวถึงแยกหน้าประตู / ช่องรับตู้เต็ม"></div>
     <button class="go" id="send">ส่งรายงานสถานการณ์</button><div class="msg" id="msg" aria-live="polite"></div>
   </section>
 </div>
@@ -365,8 +365,7 @@ body[data-page="icd"] #portSystem,body[data-page="icd"] #portDashboard,body[data
   <div class="section-body">
     <div class="dsearch"><input id="depotSearch" type="search" placeholder="ค้นหาลานตู้ เช่น TIFFA, ลาดกระบัง, ศรีราชา, KCD" autocomplete="off" enterkeyhint="search" aria-label="ค้นหาลานตู้"></div>
     <div class="dhead muted" id="depotHead" aria-live="polite"></div>
-    <div class="depot-grid" id="depotResults"></div>
-    <div class="search-tools"><button class="secondary dmore" id="depotMore" type="button" hidden></button><button class="secondary" id="depotAll" type="button">แสดงลานตู้ทั้งหมด</button></div>
+    <div class="depot-groups" id="depotResults"></div>
   </div>
 </section>
 
@@ -487,6 +486,80 @@ const DEFAULT_FACILITIES = {
   "GM-21":{"name": "MCT Depot", "short": "MCT Depot", "type": "ลานตู้ / Depot", "location": "หนองขาม ศรีราชา", "city": "จังหวัดชลบุรี", "phone": "093-240-9763", "hours": "จ–ส 08:00–17:00", "pid": "ChIJN38fq1-3AjERLU0UPM-khxk", "gname": "MCT Depot", "vs": "ok"},
   "GM-22":{"name": "ThaiReefer-ReeGen Service Container Yard ลาดกระบัง", "short": "ThaiReefer-ReeGen Service Container Yard ลาดกระบัง", "type": "ลานตู้ / Depot", "location": "คลองสามประเวศ ลาดกระบัง", "city": "กรุงเทพมหานคร", "phone": "092-282-1365", "hours": "จ–ส 08:00–17:00", "pid": "ChIJK0rmbd1nHTERoy4qgrRxvSU", "gname": "ThaiReefer-ReeGen Service Container Yard ลาดกระบัง", "vs": "ok"}
 };
+const SPREADSHEET_FACILITIES = [
+  ["ICD ลาดกระบัง ประตู 1","33/4 ซอย ICD แขวงคลองสามประเวศ เขตลาดกระบัง กรุงเทพฯ 10520","","","กรุงเทพฯ","ChIJ029WkVdnHTER-Fz8kxSd9do"],
+  ["ลานตู้ ECTT","82/3 ไอซีดี แขวงคลองสามประเวศ เขตลาดกระบัง กรุงเทพฯ 10520","","","กรุงเทพฯ","ChIJwXdb8XpnHTERweOCZDasqdA"],
+  ["ลานลาดกระบัง","PQV6+9GV แขวงคลองสามประเวศ เขตลาดกระบัง กรุงเทพฯ 10520","","","กรุงเทพฯ","ChIJC9CB_aRnHTEROjej5kKvMw4"],
+  ["Thai Inter Depot and Transport (TID)","19/6 หมู่ 8 ซ.วัดศรีวารีน้อย ถ.บางนา-ตราด กม.18 ต.บางชะลอง อ.บางพลี สมุทรปราการ 10540","จันทร์-เสาร์ 05:00-22:00 (อาทิตย์ปิด)","02-740-7001","สมุทรปราการ","ChIJIyDYm-JcHTERdZMSQnCtiPM"],
+  ["D Depot Container Services Bangkok","10, 17 ถ.บางนา-ตราด กม.13 ต.ราชาเทวะ อ.บางพลี สมุทรปราการ 10540","จันทร์-ศุกร์ 07:00-18:00, เสาร์ 08:00-17:00 (อาทิตย์ปิด)","083-996-5517","สมุทรปราการ","ChIJoXbjAZNnHTERvKGXcUbOAx4"],
+  ["Sahathai Terminal (สำนักงานใหญ่)","51/1 หมู่ 3 ถ.ปู่เจ้าสมิงพราย ต.บางยอแพรก อ.พระประแดง สมุทรปราการ 10130","เปิด 24 ชม. ทุกวัน","02-386-8000","สมุทรปราการ","ChIJzcjud5qh4jAREwO1EPXB0MM"],
+  ["Bangkok Barge Terminal","8/8 หมู่ 8 ถ.ปู่เจ้าสมิงพราย ต.บางยอแพรก อ.พระประแดง สมุทรปราการ 10130","เปิด 24 ชม. ทุกวัน","02-386-8188","สมุทรปราการ","ChIJBfJ9n5Gh4jARLdZ7_Rbaxu0"],
+  ["บางกอก คอนเทนเนอร์ เดโป เซอร์วิส","JHQ4+V43 ต.บางยอแพรก อ.พระประแดง สมุทรปราการ 10130","","090-895-5243","สมุทรปราการ","ChIJGcmuJv6h4jARvWazF7SegfQ"],
+  ["บริษัท คอนเทนเนอร์ดีโป้เซอร์วิสแอนด์ทรานสปอร์ต จำกัด","หมู่ 12 60/1 ซ.มิตรภาพ ต.บางแก้ว อ.บางพลี สมุทรปราการ 10540","","038-768-625","สมุทรปราการ","ChIJpa8o1TZcHTER2ZAItppoJvw"],
+  ["BCSC - Bangkok Container Service (ลานตู้ BCSC)","MQFV+5H3 ต.หนองปรือ อ.บางพลี สมุทรปราการ 10540","จันทร์-เสาร์ 07:00-20:00 (อาทิตย์ปิด)","02-106-6500","สมุทรปราการ","ChIJy0EHpFZdHTERCyhx33GBwRA"],
+  ["ลานยูนิคอน Unicon Container Services","13 ถ.คิงแก้ว ต.ราชาเทวะ อ.บางพลี สมุทรปราการ 10540","จันทร์-เสาร์ 08:00-18:00 (อาทิตย์ปิด)","098-899-4255","สมุทรปราการ","ChIJjToGDPddHTERi7zc_r0S0D8"],
+  ["ลานโกย บริการรับฝากตู้คอนเทนเนอร์ 24 ชม.","JPJ7+59P ต.บางพลีใหญ่ อ.บางพลี สมุทรปราการ 10540","เปิด 24 ชม. ทุกวัน","","สมุทรปราการ","ChIJ4-ox_3ldHTERxmqfCvR8QYo"],
+  ["Thai Eng Kong Container Services (Bangkok)","65 ต.บางชะลอง อ.บางพลี สมุทรปราการ 10540","","02-740-7855","สมุทรปราการ","ChIJ9XQeDhxdHTERnuGX32Y5HF8"],
+  ["BC2 Depot","JQRG+WWW ต.บางชะลอง อ.บางพลี สมุทรปราการ 10540","","","สมุทรปราการ","ChIJXfUxy9hdHTERU-znmWquH7Y"],
+  ["ลานตู้ CDS15 สนามบิน","44 ถ.บางนา-ตราด ฝั่งสุวรรณภูมิ ต.บางชะลอง อ.บางพลี สมุทรปราการ 10540","","","สมุทรปราการ","ChIJQcYKxkBdHTER47zsCV5kdgg"],
+  ["KCTC Thai Logistics (BKK Depot)","74/12 ต.ศีรษะจรเข้ใหญ่ อ.บางเสาธง สมุทรปราการ 10540","จันทร์-เสาร์ 07:00-19:30 (อาทิตย์ปิด)","061-265-1332","สมุทรปราการ","ChIJ__dgVzldHTERQ8V8zZXOri4"],
+  ["CMA CGM Inland Services (CCIS3) - บางเสาธง","74/12 ต.ศีรษะจรเข้ใหญ่ อ.บางเสาธง สมุทรปราการ 10570","จันทร์-เสาร์ 07:00-20:00 (อาทิตย์ปิด)","02-118-9730","สมุทรปราการ","ChIJl32QH4JdHTEREHRW3AU8Fl0"],
+  ["Thaireefer Group (Mahachai) ไทยรีเฟอร์ มหาชัย","1/6 หมู่ 7 ต.นาดี อ.เมืองสมุทรสาคร สมุทรสาคร 74000","จันทร์-เสาร์ 08:00-17:00 (อาทิตย์ปิด)","034-466-044","สมุทรสาคร","ChIJa64CijC_4jARP_um9tdhAMk"],
+  ["บริษัท ศรีประสงค์ ทรัค แอนด์ คอนเทนเนอร์ จำกัด","10 หมู่ 1 ถ.พระราม 2 ต.บางน้ำจืด อ.เมืองสมุทรสาคร สมุทรสาคร 74000","จันทร์-เสาร์ 08:30-19:30 (อาทิตย์ปิด)","081-839-2142","สมุทรสาคร","ChIJS7EnSPO74jAR2VqwoQGQMfg"],
+  ["บริษัท รุ่งเจริญผล จำกัด","ต.ท่าจีน อ.เมืองสมุทรสาคร สมุทรสาคร 74000","เปิดทุกวัน 07:00-17:00","034-421-151","สมุทรสาคร","ChIJV1aZPMnH4jARKxVUL0NLLSw"],
+  ["ริงชา ลานตู้ (RINCHA YARD)","ต.ทุ่งสุขลา อ.ศรีราชา ชลบุรี 20230","เปิด 24 ชม. ทุกวัน","088-981-8898","ชลบุรี (แหลมฉบัง)","ChIJNdCXCBa5AjERbEbwuqxh1j0"],
+  ["บริษัท ลานทอตะวันรุ่ง จำกัด (Tawanrung Trans)","168/4 หมู่ 4 ต.บึง อ.ศรีราชา ชลบุรี 20230","เปิด 24 ชม. ทุกวัน","094-619-0440","ชลบุรี (แหลมฉบัง)","ChIJq7qebJa5AjEReH-c1Hluv2g"],
+  ["Tips CD ชลบุรี","ต.ทุ่งสุขลา อ.ศรีราชา ชลบุรี 20230","จันทร์-ศุกร์ 07:30-19:00, เสาร์ 07:30-17:00 (อาทิตย์ปิด)","038-408-480 ต่อ 3851","ชลบุรี (แหลมฉบัง)","ChIJvQdfrCq6AjERqzuB04gHvbY"],
+  ["REI Reefer Container & ISO Tank Depot Logistics Center","4X63+WGX สุรศักดิ์ อ.ศรีราชา ชลบุรี 20230","จันทร์-เสาร์ 08:00-17:00 (อาทิตย์ปิด)","093-180-4447","ชลบุรี (แหลมฉบัง)","ChIJdSdQxeG5AjERjVg7bSC7-qY"],
+  ["KCTC Thai Logistics (LCB Depot)","4XC2+H8M สุรศักดิ์ อ.ศรีราชา ชลบุรี 20230","","061-589-5597","ชลบุรี (แหลมฉบัง)","ChIJY19f8uO5AjEREahIShY7pnI"],
+  ["ลานตู้ JTC YARD 4","3X5G+9M4 ทล.ชบ.3009 ต.บึง อ.ศรีราชา ชลบุรี 20230","เปิด 24 ชม. ทุกวัน","02-180-7888","ชลบุรี (แหลมฉบัง)","ChIJfUEDFwC5AjERO9dh6qq4NYs"],
+  ["KS Container Yard","543 หมู่ 6 ต.หนองขาม อ.ศรีราชา ชลบุรี 20230","","","ชลบุรี (แหลมฉบัง)","ChIJxYuIAQDHAjERYrjjZ6LVd5Q"],
+  ["MOL Container Center (Thailand)","96/11 หมู่ 10 ต.ทุ่งสุขลา อ.ศรีราชา ชลบุรี 20110","จันทร์-เสาร์ 07:00-20:00 (อาทิตย์ปิด)","038-348-350","ชลบุรี (แหลมฉบัง)","ChIJCYDPJ3XIAjERXwwgAFEzyRc"],
+  ["ลานตู้ JTC YARD 2","4X79+HR ต.หนองขาม อ.ศรีราชา ชลบุรี 20110","เปิด 24 ชม. ทุกวัน","02-180-7888","ชลบุรี (แหลมฉบัง)","ChIJYxLxRgC5AjERtKfgD1M_2fI"],
+  ["ลานตู้ JTC YARD 6","4 ต.หนองขาม อ.ศรีราชา ชลบุรี 20110","เปิด 24 ชม. ทุกวัน","02-180-7888","ชลบุรี (แหลมฉบัง)","ChIJNeVuGgDJAjERAOzW8sN5RDk"],
+  ["ลานตู้ JTC YARD 7","126 หมู่ 15 ต.บึง อ.ศรีราชา ชลบุรี 20230","เปิด 24 ชม. ทุกวัน","02-180-7888","ชลบุรี (แหลมฉบัง)","ChIJV5mwUwC5AjERpMk_FWBYtC4"],
+  ["ลานตู้ JTC YARD 10","3X5C+C2W ต.บึง อ.ศรีราชา ชลบุรี 20230","เปิด 24 ชม. ทุกวัน","093-092-5095","ชลบุรี (แหลมฉบัง)","ChIJE8Pi81q5AjER2z6s4FWpRns"],
+  ["ลานตู้ JTC YARD 11","33 หมู่ 4 ต.ทุ่งสุขลา อ.ศรีราชา ชลบุรี 20110","เปิด 24 ชม. ทุกวัน","093-092-5095","ชลบุรี (แหลมฉบัง)","ChIJxcq0nE63AjERalDIDdO0RUw"],
+  ["ลานตู้ OM DEPOT","291/38 ต.หนองขาม อ.ศรีราชา ชลบุรี 20230","จันทร์-เสาร์ 07:00-21:00 (อาทิตย์ปิด)","090-890-6859","ชลบุรี (แหลมฉบัง)","ChIJpcb52RG5AjERgYdyWfV1BSs"],
+  ["CIMC2","3X4C+8CV ต.บึง อ.ศรีราชา ชลบุรี 20150","","","ชลบุรี (แหลมฉบัง)","ChIJS_5gcgC5AjERkkFJd5fp53A"],
+  ["KCTC 2 / HK DEPOT","5/10 หมู่ 8 ต.บางละมุง อ.บางละมุง ชลบุรี 20150","จันทร์-เสาร์ 08:00-17:00 (อาทิตย์ปิด)","081-156-5017","ชลบุรี (แหลมฉบัง)","ChIJ6dVrj465AjER5X7HTV00_2Y"],
+  ["ลานตู้ โอที คอนเทนเนอร์เซอร์วิส เดโป (OT Depot)","106 ต.บางละมุง อ.บางละมุง ชลบุรี 20150","เปิด 24 ชม. ทุกวัน","061-174-2190","ชลบุรี (แหลมฉบัง)","ChIJ32enKQC5AjERJaMt1z907gU"],
+  ["Smart Logistics Service (Thailand) LCB-3","156 หมู่ 1 ต.หนองขาม อ.ศรีราชา ชลบุรี 20110","จันทร์-เสาร์ 08:00-17:00 (อาทิตย์ปิด)","091-726-0585","ชลบุรี (แหลมฉบัง)","ChIJm8cqgXrHAjERHu46S8xek80"],
+  ["C.D.S. Storage (Pinthong 2)","17 หมู่ 8 ต.หนองขาม อ.ศรีราชา ชลบุรี 20110","จันทร์-เสาร์ 08:00-17:00 (อาทิตย์ปิด)","091-726-0585","ชลบุรี (แหลมฉบัง)","ChIJxf_J_CnGAjER0VIuwOsofIU"],
+  ["TICS Depot","68 หมู่ 5 ต.หนองขาม อ.ศรีราชา ชลบุรี 20230","จันทร์-ศุกร์ 08:00-20:00, เสาร์ 08:00-17:00 (อาทิตย์ปิด)","093-580-8488","ชลบุรี (แหลมฉบัง)","ChIJ8fU8VQDJAjER40Eupd4fuiw"],
+  ["ลานตู้ Cello by HAST (ฮาดร์)","3XMP+H4F ต.บึง อ.ศรีราชา ชลบุรี 20230","จันทร์-เสาร์ 08:00-17:00 (อาทิตย์ปิด)","064-182-6301","ชลบุรี (แหลมฉบัง)","ChIJXXEOvCXHAjERon5UpjRfzOQ"],
+  ["ลานดีเดโป (ใหม่)","3XGV+G29 ต.บึง อ.ศรีราชา ชลบุรี 20230","จันทร์-เสาร์ 07:00-17:00 (อาทิตย์ปิด)","","ชลบุรี (แหลมฉบัง)","ChIJmyHL16LHAjER0RVrZ0XW9do"],
+  ["สยามคอม (ลานตู้ 1)","4WH6+3WX ต.ทุ่งสุขลา อ.ศรีราชา ชลบุรี 20230","จันทร์-เสาร์ 08:00-17:00 (อาทิตย์ปิด)","","ชลบุรี (แหลมฉบัง)","ChIJUekUz1-3AjERa54-MBoM45o"],
+  ["ลานตู้ HLA","3X8J+6G4 ต.บึง อ.ศรีราชา ชลบุรี 20230","","","ชลบุรี (แหลมฉบัง)","ChIJCaAJPQDHAjERJv74Iv-j7cs"],
+  ["ลานตู้ Ti2","3X22+FMG ต.บางละมุง อ.บางละมุง ชลบุรี 20150","","","ชลบุรี (แหลมฉบัง)","ChIJXXpo_Py5AjERz1y3O51sj40"],
+  ["Orchid Depot (LCB Depot 2)","85 หมู่ 10 ต.ทุ่งสุขลา อ.ศรีราชา ชลบุรี 20230","จันทร์-เสาร์ 08:00-17:00 (อาทิตย์ปิด)","038-491-613","ชลบุรี (แหลมฉบัง)","ChIJB-iAKrO5AjER4aPwBOlaCz8"],
+  ["ลาน KCD เคอรี่","4WH6+94J ต.ทุ่งสุขลา อ.ศรีราชา ชลบุรี 20230","","063-929-4704","ชลบุรี (แหลมฉบัง)","ChIJI6n4hqG3AjER_C9QiQuvwNM"],
+  ["Siamcontainer Terminal (LCB Branch)","ต.บึง อ.ศรีราชา ชลบุรี 20230","","033-005-282","ชลบุรี (แหลมฉบัง)","ChIJ8fY3bmnHAjERSBTzOYSQ3fA"],
+  ["PREMIER DEPOT SOLUTIONS RAYONG (พรีเมียร์ ดีโป โซลูชั่น ระยอง)","59 หมู่ 10 ต.นิคมพัฒนา อ.นิคมพัฒนา ระยอง 21180","จันทร์-เสาร์ 08:30-17:00 (อาทิตย์ปิด)","061-667-8513","ระยอง","ChIJKZ09nUUBSCkR6LnMP0SYl7s"],
+  ["mi logistic (Rayong)","60 ต.ห้วยโป่ง อ.เมืองระยอง ระยอง 21150","เปิดทุกวัน 09:00-17:00","088-986-8466","ระยอง","ChIJE2QSPqPxAjERJp6WUCCiW5E"],
+  ["ลานตู้ PK มาบตาพุด","154 ถ.ห้วยโป่ง-หนองบอน ต.ห้วยโป่ง อ.เมืองระยอง ระยอง 21150","จันทร์-เสาร์ 07:00-18:00 (อาทิตย์ปิด)","086-330-1122","ระยอง","ChIJETIQwS7vAjERIovX6AmCnGE"],
+  ["ลานตู้คอนเทนเนอร์ CY (ถ.เจริญพัฒนา)","18 หมู่ 9 ถ.เจริญพัฒนา ต.ห้วยโป่ง อ.เมืองระยอง ระยอง 21150","","","ระยอง","ChIJ5eXrJQDxAjERO76DtQJKprI"],
+  ["Songkhla Reefer Services (Thaireefer) ลานตู้สงขลา","13/4 หมู่ 6 ถ.เกาะยอ-เขาแดง ต.สทิงหม้อ อ.สิงหนคร สงขลา 90280","จันทร์-เสาร์ 08:00-17:00 (อาทิตย์ปิด)","089-653-5011","สงขลา","ChIJIZ5Nrr8zTTARm1MdqzXEjjQ"],
+  ["REI Sadao Depot","146 หมู่ 2 ต.สำนักขาม อ.สะเดา สงขลา 90320","จันทร์-เสาร์ 08:00-17:00 (อาทิตย์ปิด)","095-015-7772","สงขลา","ChIJQ4uZjyC6TDARh102O2Yj9pg"]
+];
+SPREADSHEET_FACILITIES.forEach((row,index)=>{
+  const [name,location,hours,phone,city,pid]=row;
+  const tokens=norm(name).split(' ').filter(Boolean);
+  const duplicateByName=Object.values(DEFAULT_FACILITIES).find(f=>{
+    const existing=norm([f.name,f.short,f.gname,f.alias].filter(Boolean).join(' '));
+    return tokens.every(token=>existing.includes(token));
+  });
+  if(duplicateByName){
+    if(!duplicateByName.pid)duplicateByName.pid=pid;
+    if(!duplicateByName.phone&&phone)duplicateByName.phone=phone;
+    if(!duplicateByName.hours&&hours)duplicateByName.hours=hours;
+    if(!duplicateByName.gname)duplicateByName.gname=name;
+    if(duplicateByName.vs==='no')duplicateByName.vs='ok';
+    return;
+  }
+  if(Object.values(DEFAULT_FACILITIES).some(f=>f.pid===pid))return;
+  DEFAULT_FACILITIES['XLS-'+(index+1)]={name,short:name,type:'ลานตู้ / Depot',location,city,hours,phone,pid,gname:name,alias:name,vs:'ok'};
+});
 let FACILITIES = JSON.parse(JSON.stringify(DEFAULT_FACILITIES));
 let REMOTE_LOCATIONS = {};
 
@@ -501,7 +574,14 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const PORT_ZONES=Object.keys(PORT_TYPES);
 const ICD_ZONES=Object.keys(FACILITIES);
-const ICD_ACTIVE=ICD_ZONES.filter(z=>!FACILITIES[z].legacy);
+const seenFacilityPlaces=new Set();
+const ICD_ACTIVE=ICD_ZONES.filter(z=>{
+  const facility=FACILITIES[z];
+  if(facility.legacy)return false;
+  if(facility.pid&&seenFacilityPlaces.has(facility.pid))return false;
+  if(facility.pid)seenFacilityPlaces.add(facility.pid);
+  return true;
+});
 const ALL_ZONES=[...PORT_ZONES,...ICD_ZONES];
 let cur='A0',curP='A0',curM='';
 let cloudReports=[];
@@ -630,7 +710,8 @@ function truckDetailHTML(d){
     d.emptyRoad!=null?'<div class="preview-item"><b>'+d.emptyRoad+' คัน</b>หางเปล่าบนถนน</div>':'',
     lane(d.heavyLane,d.heavyLaneRows,d.heavyLanePer),lane(d.emptyLane,d.emptyLaneRows,d.emptyLanePer),
     d.specialQueue!==undefined&&d.specialQueue?'<div class="preview-item"><b>'+esc(d.specialQueue)+'</b>คิวพิเศษ</div>':'',
-    Array.isArray(d.operationItems)?d.operationItems.map((line,i)=>'<div class="preview-item"><b>'+esc(String(line))+'</b>รายการ '+(i+1)+'</div>').join(''):''
+    Array.isArray(d.operationItems)?d.operationItems.map((line,i)=>'<div class="preview-item"><b>'+esc(String(line))+'</b>รายการ '+(i+1)+'</div>').join(''):'',
+    d.portNote?'<div class="preview-item"><b>'+esc(String(d.portNote))+'</b>หมายเหตุ</div>':''
   ].join('');
   return items?'<div class="truck-detail"><strong>รายละเอียดรายงาน</strong><div class="preview-grid">'+items+'</div></div>':'';
 }
@@ -659,8 +740,7 @@ function mapsUrl(f,m){
   if(f.pid)return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(f.gname||f.short||f.name)+'&query_place_id='+encodeURIComponent(f.pid);
   return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent([f.short||f.name,f.location,f.city].filter(Boolean).join(' '));
 }
-const DEPOT_PAGE=12;
-let depotQ='',depotShown=DEPOT_PAGE,depotShowAll=false,_dix=null;
+let depotQ='',_dix=null;
 function norm(s){return String(s==null?'':s).toLowerCase().replace(/[\s\-_.,()\/]+/g,' ').trim();}
 function depotIndex(){
   if(_dix&&_dix.f===FACILITIES)return _dix.a;
@@ -670,6 +750,14 @@ function depotIndex(){
 function searchDepots(q){
   const toks=norm(q).split(' ').filter(Boolean),digits=String(q).replace(/\D/g,'');
   return depotIndex().filter(d=>toks.every(t=>d.h.includes(t))||(digits.length>=4&&d.h.includes(digits))).map(d=>d.z);
+}
+function depotGroup(z){
+  const f=FACILITIES[z],location=norm(f.location||''),city=norm(f.city||''),place=location+' '+city;
+  if(place.includes('สงขลา')||place.includes('songkhla'))return 'Songkhla';
+  if(location.includes('ลาดกระบัง')||location.includes('lat krabang'))return 'Lat Krabang';
+  if(place.includes('แหลมฉบัง')||place.includes('laem chabang')||city.includes('ชลบุรี'))return 'Laem Chabang';
+  if(city.includes('กรุงเทพ')||city.includes('bangkok'))return 'Bangkok';
+  return f.city||'Other locations';
 }
 function lastAny(z){const a=zoneReports(z),r=a[a.length-1];return r&&Date.now()-r.t<DAY?r:null;}
 function depotCard(z){
@@ -687,20 +775,22 @@ function depotCard(z){
 }
 function renderDepots(){
   const box=$('depotResults');if(!box)return;
+  const openGroups=new Set([...box.querySelectorAll('.depot-group[open]')].map(group=>group.dataset.group));
   const q=depotQ.trim();let zs;
   if(q){
     zs=searchDepots(q).sort((a,b)=>((lastAny(b)||{}).t||0)-((lastAny(a)||{}).t||0));
     $('depotHead').textContent=zs.length?'พบ '+zs.length+' ลาน':'ไม่พบลานที่ค้นหา ลองพิมพ์ชื่อย่อ พื้นที่ หรือเบอร์โทร';
-  }else if(depotShowAll){
+  }else{
     zs=ICD_ACTIVE.slice().sort((a,b)=>a.localeCompare(b,'th'));
     $('depotHead').textContent='แสดงลานตู้ทั้งหมด '+zs.length+' ลาน';
-  }else{
-    zs=ICD_ZONES.filter(z=>lastAny(z)).sort((a,b)=>lastAny(b).t-lastAny(a).t);
-    $('depotHead').textContent=zs.length?'ลานที่มีรายงานใน 24 ชั่วโมง ('+zs.length+' ลาน) · กด “แสดงลานตู้ทั้งหมด” เพื่อดูทุกลาน':'ยังไม่มีลานที่มีรายงานใน 24 ชั่วโมง · กด “แสดงลานตู้ทั้งหมด” หรือพิมพ์ค้นหาชื่อลาน';
   }
-  box.innerHTML=zs.slice(0,depotShown).map(depotCard).join('');
-  const more=$('depotMore');more.hidden=zs.length<=depotShown;more.textContent='แสดงเพิ่ม (อีก '+(zs.length-depotShown)+' ลาน)';
-  $('depotAll').textContent=depotShowAll?'แสดงเฉพาะลานที่มีรายงาน':'แสดงลานตู้ทั้งหมด';
+  const groups=new Map();
+  zs.forEach(z=>{const group=depotGroup(z);if(!groups.has(group))groups.set(group,[]);groups.get(group).push(z);});
+  const order=['Bangkok','Lat Krabang','Laem Chabang','Songkhla'];
+  const groupLabels={'Bangkok':'Bangkok / กรุงเทพฯ','Lat Krabang':'Lat Krabang / ลาดกระบัง','Laem Chabang':'Laem Chabang / แหลมฉบัง','Songkhla':'Songkhla / สงขลา'};
+  if(!q)order.forEach(group=>{if(!groups.has(group))groups.set(group,[]);});
+  box.className='depot-groups';
+  box.innerHTML=[...groups].sort((a,b)=>{const ai=order.indexOf(a[0]),bi=order.indexOf(b[0]);return (ai<0?order.length:ai)-(bi<0?order.length:bi)||a[0].localeCompare(b[0],'th');}).map(([group,items])=>'<details class="depot-group" data-group="'+esc(group)+'"'+(q||openGroups.has(group)?' open':'')+'><summary>'+esc(groupLabels[group]||group)+'<span class="depot-group-count">'+items.length+' ลาน</span></summary><div class="depot-group-content">'+(items.length?'<div class="depot-grid">'+items.map(depotCard).join('')+'</div>':'<p class="depot-group-empty">ยังไม่มีข้อมูลลานตู้ในพื้นที่นี้</p>')+'</div></details>').join('');
 }
 
 
@@ -773,7 +863,7 @@ function renderPortCodes(){
 
 const ORDER={jam:0,busy:1,clear:2};
 function dashboard(kind){
-  const zs=kind==='icd'?ICD_ZONES:PORT_ZONES;
+  const zs=kind==='icd'?ICD_ACTIVE:PORT_ZONES;
   const prefix=kind==='icd'?'icd':'port';
   const rows=zs.map(z=>({z,r:latest(z)})).filter(x=>x.r&&LABEL[x.r.status]);
   const c={clear:0,busy:0,jam:0};rows.forEach(x=>c[x.r.status]++);
@@ -805,7 +895,7 @@ function capturePortReportDrafts(){
     const value=field=>card.querySelector('[data-field="'+field+'"]').value;
     portReportDrafts.set(card.dataset.zone,{
       status:value('status'),heavyQueue:value('heavyQueue'),heavyTrucks:value('heavyTrucks'),heavyRows:value('heavyRows'),
-      emptyQueue:value('emptyQueue'),emptyTrucks:value('emptyTrucks'),emptyRows:value('emptyRows'),insideQueue:value('insideQueue'),vessels:value('vessels')
+      emptyQueue:value('emptyQueue'),emptyTrucks:value('emptyTrucks'),emptyRows:value('emptyRows'),insideQueue:value('insideQueue'),vessels:value('vessels'),portNote:value('portNote')
     });
   });
 }
@@ -816,9 +906,9 @@ function renderPortReportFields(){
   const zones=[...document.querySelectorAll('input[name="portzone"]:checked')].map(el=>el.value);
   box.innerHTML=zones.map(zone=>{
     const d=portReportDrafts.get(zone)||{};
-    const number=(field,label,unit,value)=>'<label>'+label+'<input type="number" min="0" step="1" inputmode="numeric" data-field="'+field+'" value="'+esc(value||'')+'" required><span>'+unit+'</span></label>';
+    const number=(field,label,unit,value)=>'<label>'+label+'<input type="text" data-field="'+field+'" value="'+esc(value==null?'':value)+'" required><span>'+unit+'</span></label>';
     const queue=(kind,label)=>'<h4>'+label+'</h4><label>สถานะคิว<select data-field="'+kind+'Queue"><option value="no"'+(d[kind+'Queue']!=='yes'?' selected':'')+'>ไม่มีคิว</option><option value="yes"'+(d[kind+'Queue']==='yes'?' selected':'')+'>มีคิว</option></select></label><div class="port-report-fields queue-fields" data-queue-fields="'+kind+'"'+(d[kind+'Queue']==='yes'?'':' hidden')+'>'+number(kind+'Trucks','จำนวนรถ','คัน',d[kind+'Trucks'])+number(kind+'Rows','จำนวนแถว','แถว',d[kind+'Rows'])+'</div>';
-    return '<section class="port-report-zone" data-zone="'+esc(zone)+'"><h3>รายงาน '+esc(zone)+'</h3><label>สถานะโซน<select data-field="status"><option value="">เลือกสถานะ…</option>'+Object.entries(LABEL).map(([v,label])=>'<option value="'+v+'"'+(d.status===v?' selected':'')+'>'+label+'</option>').join('')+'</select></label><h4>1. คิวรถนอกท่า</h4>'+queue('heavy','1.1 หางหนัก')+queue('empty','1.2 หางเปล่า')+'<h4>2. คิวรถในท่า</h4><div class="port-report-fields">'+number('insideQueue','จำนวนคิวรถในท่า','คิว',d.insideQueue)+'</div><h4>3. การปฏิบัติงานเรือ</h4><div class="port-report-fields">'+number('vessels','จำนวนเรือ/สาย','สาย',d.vessels)+'</div></section>';
+    return '<section class="port-report-zone" data-zone="'+esc(zone)+'"><h3>รายงาน '+esc(zone)+'</h3><label>สถานะโซน<select data-field="status"><option value="">เลือกสถานะ…</option>'+Object.entries(LABEL).map(([v,label])=>'<option value="'+v+'"'+(d.status===v?' selected':'')+'>'+label+'</option>').join('')+'</select></label><h4>1. คิวรถนอกท่า</h4>'+queue('heavy','1.1 หางหนัก')+queue('empty','1.2 หางเปล่า')+'<h4>2. คิวรถในท่า</h4><div class="port-report-fields">'+number('insideQueue','จำนวนคิวรถในท่า','คิว',d.insideQueue)+'</div><h4>3. การปฏิบัติงานเรือ</h4><div class="port-report-fields">'+number('vessels','จำนวนเรือ/สาย','สาย',d.vessels)+'</div><h4>4. หมายเหตุ</h4><div class="port-report-fields"><label class="port-report-note">หมายเหตุ (ไม่บังคับ)<textarea data-field="portNote" maxlength="140" rows="2" placeholder="ระบุหมายเหตุของโซนนี้">'+esc(d.portNote||'')+'</textarea></label></div></section>';
   }).join('');
   box.hidden=!zones.length;
 }
@@ -828,6 +918,7 @@ function updateManualStatusControls(){
   $('rzone').disabled=usePortZones;
   $('portReportFields').hidden=!usePortZones;
   $('sharedStatusPicker').hidden=usePortZones;
+  $('sharedNoteField').hidden=usePortZones;
   if($('multiStatusPicker'))$('multiStatusPicker').hidden=true;
   renderPortReportFields();
 }
@@ -852,9 +943,10 @@ function bindPortZoneInputs(){
 
 function setupSelect(){
   const cnt={};ICD_ACTIVE.forEach(z=>{const k=FACILITIES[z].short||FACILITIES[z].name;cnt[k]=(cnt[k]||0)+1;});
-  const opt=z=>{const f=FACILITIES[z],k=f.short||f.name;return '<option value="'+esc(z)+'">'+esc(k+(cnt[k]>1?' ('+(f.city==='กรุงเทพมหานคร'?'กทม.':'ชลบุรี')+')':''))+'</option>';};
-  const bk=ICD_ACTIVE.filter(z=>FACILITIES[z].city==='กรุงเทพมหานคร'),ch=ICD_ACTIVE.filter(z=>FACILITIES[z].city!=='กรุงเทพมหานคร');
-  $('rzone').innerHTML='<option value="">-- ไม่เลือกลานตู้ --</option><optgroup label="ลานตู้ กรุงเทพมหานคร">'+bk.map(opt).join('')+'</optgroup><optgroup label="ลานตู้ ชลบุรี">'+ch.map(opt).join('')+'</optgroup>';
+  const opt=z=>{const f=FACILITIES[z],k=f.short||f.name,city=f.city.includes('กรุงเทพ')?'กทม.':f.city.includes('ชลบุรี')?'ชลบุรี':f.city;return '<option value="'+esc(z)+'">'+esc(k+(cnt[k]>1?' ('+city+')':''))+'</option>';};
+  const bk=ICD_ACTIVE.filter(z=>FACILITIES[z].city.includes('กรุงเทพ')),ch=ICD_ACTIVE.filter(z=>FACILITIES[z].city.includes('ชลบุรี'));
+  const other=ICD_ACTIVE.filter(z=>!FACILITIES[z].city.includes('กรุงเทพ')&&!FACILITIES[z].city.includes('ชลบุรี'));
+  $('rzone').innerHTML='<option value="">-- ไม่เลือกลานตู้ --</option><optgroup label="ลานตู้ กรุงเทพมหานคร">'+bk.map(opt).join('')+'</optgroup><optgroup label="ลานตู้ ชลบุรี">'+ch.map(opt).join('')+'</optgroup>'+(other.length?'<optgroup label="ลานตู้จังหวัดอื่น">'+other.map(opt).join('')+'</optgroup>':'');
   const allPortZones=[...PORT_ZONES,...(typeof EXTRA_PORT_ZONES==='undefined'?[]:EXTRA_PORT_ZONES)];
   $('portZonePicker').innerHTML=allPortZones.map(z=>'<label><input type="checkbox" name="portzone" value="'+esc(z)+'"><span>'+esc(z)+'</span></label>').join('');
   if(typeof requestedZone!=='undefined'&&allPortZones.includes(requestedZone)){
@@ -888,6 +980,8 @@ function getPortDetails(id){
 }
 function applyLocations(rows){
   if(!Array.isArray(rows)||!rows.length)return;
+  const signature=items=>JSON.stringify(items.filter(r=>r&&r.id).map(r=>Object.keys(r).sort().reduce((normalized,key)=>{normalized[key]=r[key];return normalized;},{})).sort((a,b)=>String(a.id).localeCompare(String(b.id))));
+  if(signature(rows)===signature(Object.values(REMOTE_LOCATIONS)))return;
   const nextTypes={...DEFAULT_PORT_TYPES};
   const nextFacilities=JSON.parse(JSON.stringify(DEFAULT_FACILITIES));
   const nextRemote={};
@@ -969,6 +1063,7 @@ function syncFromSheet(force){
 function submitReport(){
   const selectedPorts=[...document.querySelectorAll('input[name="portzone"]:checked')].map(el=>el.value);
   let reports=[];
+  const reportValue=input=>{const text=input.value.trim(),number=Number(text);return text!==''&&Number.isInteger(number)&&number>=0?number:text;};
   if(selectedPorts.length){
     const invalid=selectedPorts.find(zone=>{
       const card=$('portReportFields').querySelector('.port-report-zone[data-zone="'+zone+'"]');
@@ -979,13 +1074,13 @@ function submitReport(){
         const hasQueue=card.querySelector('[data-field="'+type+'Queue"]').value==='yes';
         if(!hasQueue)continue;
         for(const field of [type+'Trucks',type+'Rows']){
-          const input=card.querySelector('[data-field="'+field+'"]'),value=Number(input.value);
-          if(input.value.trim()===''||!Number.isInteger(value)||value<0){setMessage('กรุณากรอกจำนวนคันและจำนวนแถวของโซนนอกท่า '+zone,'err');input.focus();return true;}
+          const input=card.querySelector('[data-field="'+field+'"]');
+          if(input.value.trim()===''){setMessage('กรุณากรอกจำนวนคันและจำนวนแถวของโซนนอกท่า '+zone,'err');input.focus();return true;}
         }
       }
       for(const field of ['insideQueue','vessels']){
-        const input=card.querySelector('[data-field="'+field+'"]'),value=Number(input.value);
-        if(input.value.trim()===''||!Number.isInteger(value)||value<0){setMessage(field==='insideQueue'?'กรุณากรอกจำนวนคิวรถในท่า '+zone:'กรุณากรอกจำนวนเรือ/สาย '+zone,'err');input.focus();return true;}
+        const input=card.querySelector('[data-field="'+field+'"]');
+        if(input.value.trim()===''){setMessage(field==='insideQueue'?'กรุณากรอกจำนวนคิวรถในท่า '+zone:'กรุณากรอกจำนวนเรือ/สาย '+zone,'err');input.focus();return true;}
       }
       return false;
     });
@@ -995,10 +1090,13 @@ function submitReport(){
       const value=field=>card.querySelector('[data-field="'+field+'"]');
       const queue=type=>{
         const hasQueue=value(type+'Queue').value==='yes';
-        return {hasQueue,truckCount:hasQueue?Number(value(type+'Trucks').value):null,rowCount:hasQueue?Number(value(type+'Rows').value):null};
+        return {hasQueue,truckCount:hasQueue?reportValue(value(type+'Trucks')):null,rowCount:hasQueue?reportValue(value(type+'Rows')):null};
       };
-      const details={outsideQueue:{heavy:queue('heavy'),empty:queue('empty')},insideQueueCount:Number(value('insideQueue').value),vesselOperationsCount:Number(value('vessels').value)};
-      return {id:makeId(),category:'port',zone,facility:labelOf(zone),status:value('status').value,wait:null,note:$('rnote').value.trim().slice(0,140),details,t:Date.now()};
+      const portNote=value('portNote').value.trim();
+      const details={outsideQueue:{heavy:queue('heavy'),empty:queue('empty')},insideQueueCount:reportValue(value('insideQueue')),vesselOperationsCount:reportValue(value('vessels')),portNote};
+      const queueNote=type=>{const item=details.outsideQueue[type];return item.hasQueue?item.truckCount+' คัน '+item.rowCount+' แถว':'ไม่มีคิว';};
+      const note=['คิวนอกท่า: หางหนัก '+queueNote('heavy')+', หางเปล่า '+queueNote('empty'),'คิวรถในท่า: '+details.insideQueueCount+' คิว','การปฏิบัติงานเรือ: '+details.vesselOperationsCount+' สาย',portNote?'หมายเหตุ: '+portNote:''].filter(Boolean).join(' | ');
+      return {id:makeId(),category:'port',zone,facility:labelOf(zone),status:value('status').value,wait:null,note,details,t:Date.now()};
     });
   }else{
     const zone=$('rzone').value,st=document.querySelector('input[name="st"]:checked');
@@ -1023,9 +1121,7 @@ function submitReport(){
 $('rzone').addEventListener('change',e=>render(e.target.value));
 document.querySelectorAll('.zone').forEach(b=>b.addEventListener('click',()=>render(b.dataset.zone)));
 let dTimer=null;
-$('depotSearch').addEventListener('input',e=>{clearTimeout(dTimer);dTimer=setTimeout(()=>{depotQ=e.target.value;depotShown=DEPOT_PAGE;renderDepots();},150);});
-$('depotMore').addEventListener('click',()=>{depotShown+=DEPOT_PAGE;renderDepots();});
-$('depotAll').addEventListener('click',()=>{depotShowAll=!depotShowAll;depotShown=depotShowAll?9999:DEPOT_PAGE;renderDepots();});
+$('depotSearch').addEventListener('input',e=>{clearTimeout(dTimer);dTimer=setTimeout(()=>{depotQ=e.target.value;renderDepots();},150);});
 $('portCodeSearch').addEventListener('input',e=>{portCodeQuery=e.target.value;portCodeShowAll=false;renderPortCodes();});
 $('portCodeAll').addEventListener('click',()=>{if(portCodeQuery){portCodeQuery='';$('portCodeSearch').value='';portCodeShowAll=true;}else portCodeShowAll=!portCodeShowAll;renderPortCodes();});
 $('depotResults').addEventListener('click',e=>{
