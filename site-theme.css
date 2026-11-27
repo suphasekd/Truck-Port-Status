@@ -27,9 +27,19 @@ main{max-width:1280px;padding:26px 28px 48px}
 .summary .muted{color:#d5e0e8}
 .summary .dot{width:8px;height:8px}
 .layout{grid-template-columns:minmax(0,1.55fr) minmax(290px,.85fr);gap:14px}
+body[data-page="port"] #portSystem{grid-template-areas:"map panel" "board panel"}
+body[data-page="port"] #portSystem>.card:first-child{grid-area:map}
+body[data-page="port"] #portSystem>#operationBoard{grid-area:board;margin-top:0}
+body[data-page="port"] #portSystem>#panel{grid-area:panel}
 .card{border:1px solid #dce3e9;border-radius:4px;box-shadow:none}
 .layout>.card:first-child,#portDashboard,#icdDashboard,#icdDepots,#customsCodes,.report .card{background:#fff;border-color:#dce3e9}
 .layout>.card:first-child .cardhead,#icdDepots .section-head,#customsCodes .section-head{background:#f5f7f9}
+#icdDepots{background:#102b46;border-color:#102b46;color:#fff}
+#icdDepots .section-head,#icdDepots .section-body{background:#102b46}
+#icdDepots .section-head{border-bottom:1px solid #29425a}
+#icdDepots .section-head h2{color:#fff!important}
+#icdDepots .section-head .muted,#icdDepots .dhead{color:#d2deea}
+#icdDepots .depot h4{color:#152b40}
 .cardhead,.section-head,.section-body,.details,.dash,.report .card{border-radius:0}
 .cardhead{padding:16px 18px 4px}
 .cardhead h2,.dash h2,.section-head h2,.report h2{color:#152b40!important}
@@ -58,15 +68,29 @@ main{max-width:1280px;padding:26px 28px 48px}
 .port-zone-picker input:checked+span{border:2px solid var(--accent);background:#eef4ff;line-height:38px}
 .port-zone-picker label:has(input:checked){border:0;padding:0}
 .port-report-zone{margin:10px 0;padding:14px;border:1px solid var(--line);background:#f8fbff}
-.port-report-zone h3{margin:0 0 10px;color:#245b96}
+.port-report-zone h3,.port-report-zone h4{color:var(--accent-d);font-weight:700}
+.port-report-zone h3{margin:0 0 10px}
 .port-report-zone h4{margin:12px 0 6px;font-size:14px}
 .port-report-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .port-report-fields label{margin:0;font-size:13px}
 .port-report-fields input,.port-report-fields select{margin-top:4px}
+.port-report-note{grid-column:1/-1}
+.port-report-note textarea{margin-top:4px;resize:vertical;min-height:64px}
 .queue-fields[hidden]{display:none}
 .port-report-zone [data-field="status"]{max-width:320px}
 .port-report-fields label span{display:block;color:var(--muted);font-size:12px}
 .depot-zone-picker{margin-bottom:8px}
+.depot-groups{display:grid;gap:10px}
+.depot-group{border:1px solid var(--line);border-radius:4px;background:#fff;overflow:hidden}
+.depot-group>summary{display:flex;align-items:center;gap:12px;padding:14px 18px;color:var(--ink);font-size:16px;font-weight:700;cursor:pointer;list-style:none}
+.depot-group>summary::-webkit-details-marker{display:none}
+.depot-group>summary:before{content:"";width:8px;height:8px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .15s}
+.depot-group[open]>summary{background:#f5f7f9;border-bottom:1px solid var(--line)}
+.depot-group[open]>summary:before{transform:rotate(45deg)}
+.depot-group-count{margin-left:auto;color:var(--muted);font-size:13px;font-weight:500}
+.depot-group-content{padding:12px}
+.depot-group-content .depot-grid{margin:0}
+.depot-group-empty{margin:0;padding:10px 4px;color:var(--muted)}
 .latest-news{margin-top:14px;padding:20px;background:#fff}
 .news-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 22px}
 .news-item{display:grid;grid-template-columns:92px minmax(0,1fr);gap:12px;padding:14px 0;border-bottom:1px solid #e3e8ed}
@@ -78,6 +102,7 @@ main{max-width:1280px;padding:26px 28px 48px}
 .news-empty{padding:16px 0;color:#617284;font-size:13px}
 select:focus,input:focus,textarea:focus,button:focus-visible,a:focus-visible{outline-color:#92b5cf}
 @media(max-width:1000px){.site-head-inner{gap:16px}.primary-nav{display:none}.menu-toggle{display:inline-flex}}
+@media(max-width:820px){body[data-page="port"] #portSystem{grid-template-areas:"map" "board" "panel"}}
 @media(max-width:760px){.site-head-inner{min-height:64px;padding:0 18px}.header-home,.header-report{min-height:38px;padding:0 10px;font-size:12px}.hero{min-height:0;padding:30px 24px 20px}.hero h1{font-size:28px}.hero-status{align-items:flex-start;flex-direction:column;gap:6px}.layout{grid-template-columns:1fr}}
 @media(max-width:600px){main{padding:18px 14px 36px}.site-head-inner{gap:10px;padding:0 12px}.head-actions{gap:6px}.brand-mark{width:34px;height:34px}.brand-name{font-size:16px}.brand-caption{font-size:9px}.header-home,.header-report{max-width:90px;min-height:36px;padding:0 6px;font-size:11px;white-space:nowrap;line-height:1.2;text-align:center}.header-report{display:none}.menu-toggle{gap:5px;padding:7px 8px;font-size:12px}.hero{padding:24px 16px 18px;background-position:60% center}.hero h1{font-size:24px}.summary{gap:4px 10px}.news-grid{grid-template-columns:1fr}.news-item{grid-template-columns:78px minmax(0,1fr);gap:8px}.latest-news{padding:14px}.map{min-width:560px}}
 @media(max-width:600px){.port-zone-picker{grid-template-columns:repeat(4,minmax(58px,1fr))}.port-report-fields{grid-template-columns:1fr}}

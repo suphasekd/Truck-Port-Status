@@ -330,17 +330,16 @@ body[data-page="port"] #icdDashboard,body[data-page="port"] #reportAnchor,body[d
     <div class="mapnote">แผนผังจำลอง ไม่ใช่พิกัดจริง</div>
     <div class="legend"><span><i class="swatch" style="background:var(--jam)"></i>หนาแน่น</span><span><i class="swatch" style="background:var(--busy)"></i>ปานกลาง</span><span><i class="swatch" style="background:var(--clear)"></i>คล่องตัว</span><span><i class="swatch" style="background:var(--none)"></i>ไม่มีรายงานใน 3 ชม.</span></div>
   </section>
+  <section class="card dash operation-board" id="operationBoard" hidden>
+    <div class="operation-board-head"><h2>บอร์ดรายงานท่าเรือ</h2><div class="operation-board-tools"><div class="operation-board-meta" id="operationMeta"></div></div></div>
+    <div class="operation-grid" id="operationGrid"></div>
+  </section>
   <aside class="card details" id="panel">
     <div class="selhead"><div class="selbig" id="selBig">A0</div><div class="seltext"><div class="selkicker">จุดที่เลือก</div><h2 id="sel">โซน A0</h2><div class="selstatus" id="selStatus"></div></div></div><div class="banner" id="banner"></div><button class="btn" id="reportHere" type="button" data-rh>รายงานโซน A0</button><div class="reports"><div class="rephead"><h3>รายงานล่าสุด</h3><span class="muted" id="repcount"></span></div><div id="replist"></div><button class="secondary" id="repall" type="button" hidden>ดูทั้งหมด</button></div>
     <div id="info"></div>
         <div class="note">ข้อมูลใช้ประกอบการวางแผนเท่านั้น ควรตรวจสอบกับผู้ให้บริการก่อนเดินทาง สถานะรถมาจากรายงานของผู้ใช้งาน</div>
   </aside>
 </div>
-
-<section class="card dash operation-board" id="operationBoard" hidden>
-  <div class="operation-board-head"><h2>บอร์ดรายงานท่าเรือ</h2><div class="operation-board-tools"><div class="operation-board-meta" id="operationMeta"></div></div></div>
-  <div class="operation-grid" id="operationGrid"></div>
-</section>
 
 <section class="card dash" id="portDashboard">
   <h2>สรุปท่าเรือแหลมฉบัง</h2><div class="muted">เฉพาะโซนที่มีรายงานภายใน 3 ชั่วโมง · เรียงจากรายงานล่าสุด · คลิกแถวเพื่อดูรายละเอียด</div>
@@ -361,7 +360,7 @@ body[data-page="port"] #icdDashboard,body[data-page="port"] #reportAnchor,body[d
     <div id="sharedStatusPicker"><label>สถานะตอนนี้</label>
     <div class="opts"><label><input type="radio" name="st" value="clear"><span><i class="dot clear"></i>คล่องตัว</span></label><label><input type="radio" name="st" value="busy"><span><i class="dot busy"></i>ปานกลาง</span></label><label><input type="radio" name="st" value="jam"><span><i class="dot jam"></i>หนาแน่น</span></label></div>
     </div>
-    <label for="rnote">หมายเหตุ (ไม่บังคับ)</label><input id="rnote" maxlength="140" placeholder="เช่น คิวยาวถึงแยกหน้าประตู / ช่องรับตู้เต็ม">
+    <div id="sharedNoteField"><label for="rnote">หมายเหตุ (ไม่บังคับ)</label><input id="rnote" maxlength="140" placeholder="เช่น คิวยาวถึงแยกหน้าประตู / ช่องรับตู้เต็ม"></div>
     <button class="go" id="send">ส่งรายงานสถานการณ์</button><div class="msg" id="msg" aria-live="polite"></div>
   </section>
 </div>
@@ -371,7 +370,7 @@ body[data-page="port"] #icdDashboard,body[data-page="port"] #reportAnchor,body[d
   <div class="section-body">
     <div class="dsearch"><input id="depotSearch" type="search" placeholder="ค้นหาลานตู้ เช่น TIFFA, ลาดกระบัง, ศรีราชา, KCD" autocomplete="off" enterkeyhint="search" aria-label="ค้นหาลานตู้"></div>
     <div class="dhead muted" id="depotHead" aria-live="polite"></div>
-    <div class="depot-grid" id="depotResults"></div>
+    <div class="depot-groups" id="depotResults"></div>
     <div class="search-tools"><button class="secondary dmore" id="depotMore" type="button" hidden></button><button class="secondary" id="depotAll" type="button">แสดงลานตู้ทั้งหมด</button></div>
   </div>
 </section>
@@ -636,7 +635,8 @@ function truckDetailHTML(d){
     d.emptyRoad!=null?'<div class="preview-item"><b>'+d.emptyRoad+' คัน</b>หางเปล่าบนถนน</div>':'',
     lane(d.heavyLane,d.heavyLaneRows,d.heavyLanePer),lane(d.emptyLane,d.emptyLaneRows,d.emptyLanePer),
     d.specialQueue!==undefined&&d.specialQueue?'<div class="preview-item"><b>'+esc(d.specialQueue)+'</b>คิวพิเศษ</div>':'',
-    Array.isArray(d.operationItems)?d.operationItems.map((line,i)=>'<div class="preview-item"><b>'+esc(String(line))+'</b>รายการ '+(i+1)+'</div>').join(''):''
+    Array.isArray(d.operationItems)?d.operationItems.map((line,i)=>'<div class="preview-item"><b>'+esc(String(line))+'</b>รายการ '+(i+1)+'</div>').join(''):'',
+    d.portNote?'<div class="preview-item"><b>'+esc(String(d.portNote))+'</b>หมายเหตุ</div>':''
   ].join('');
   return items?'<div class="truck-detail"><strong>รายละเอียดรายงาน</strong><div class="preview-grid">'+items+'</div></div>':'';
 }
@@ -677,6 +677,14 @@ function searchDepots(q){
   const toks=norm(q).split(' ').filter(Boolean),digits=String(q).replace(/\D/g,'');
   return depotIndex().filter(d=>toks.every(t=>d.h.includes(t))||(digits.length>=4&&d.h.includes(digits))).map(d=>d.z);
 }
+function depotGroup(z){
+  const f=FACILITIES[z],location=norm(f.location||''),city=norm(f.city||''),place=location+' '+city;
+  if(place.includes('สงขลา')||place.includes('songkhla'))return 'Songkhla';
+  if(location.includes('ลาดกระบัง')||location.includes('lat krabang'))return 'Lat Krabang';
+  if(place.includes('แหลมฉบัง')||place.includes('laem chabang')||city.includes('ชลบุรี'))return 'Laem Chabang';
+  if(city.includes('กรุงเทพ')||city.includes('bangkok'))return 'Bangkok';
+  return f.city||'Other locations';
+}
 function lastAny(z){const a=zoneReports(z),r=a[a.length-1];return r&&Date.now()-r.t<DAY?r:null;}
 function depotCard(z){
   const f=FACILITIES[z],m=REMOTE_LOCATIONS[z]||{},r=lastAny(z),fresh=r&&Date.now()-r.t<STALE;
@@ -693,6 +701,7 @@ function depotCard(z){
 }
 function renderDepots(){
   const box=$('depotResults');if(!box)return;
+  const openGroups=new Set([...box.querySelectorAll('.depot-group[open]')].map(group=>group.dataset.group));
   const q=depotQ.trim();let zs;
   if(q){
     zs=searchDepots(q).sort((a,b)=>((lastAny(b)||{}).t||0)-((lastAny(a)||{}).t||0));
@@ -704,7 +713,13 @@ function renderDepots(){
     zs=ICD_ZONES.filter(z=>lastAny(z)).sort((a,b)=>lastAny(b).t-lastAny(a).t);
     $('depotHead').textContent=zs.length?'ลานที่มีรายงานใน 24 ชั่วโมง ('+zs.length+' ลาน) · กด “แสดงลานตู้ทั้งหมด” เพื่อดูทุกลาน':'ยังไม่มีลานที่มีรายงานใน 24 ชั่วโมง · กด “แสดงลานตู้ทั้งหมด” หรือพิมพ์ค้นหาชื่อลาน';
   }
-  box.innerHTML=zs.slice(0,depotShown).map(depotCard).join('');
+  const groups=new Map();
+  zs.slice(0,depotShown).forEach(z=>{const group=depotGroup(z);if(!groups.has(group))groups.set(group,[]);groups.get(group).push(z);});
+  const order=['Bangkok','Lat Krabang','Laem Chabang','Songkhla'];
+  const groupLabels={'Bangkok':'Bangkok / กรุงเทพฯ','Lat Krabang':'Lat Krabang / ลาดกระบัง','Laem Chabang':'Laem Chabang / แหลมฉบัง','Songkhla':'Songkhla / สงขลา'};
+  if(!q&&depotShowAll)order.forEach(group=>{if(!groups.has(group))groups.set(group,[]);});
+  box.className='depot-groups';
+  box.innerHTML=[...groups].sort((a,b)=>{const ai=order.indexOf(a[0]),bi=order.indexOf(b[0]);return (ai<0?order.length:ai)-(bi<0?order.length:bi)||a[0].localeCompare(b[0],'th');}).map(([group,items])=>'<details class="depot-group" data-group="'+esc(group)+'"'+(q||openGroups.has(group)?' open':'')+'><summary>'+esc(groupLabels[group]||group)+'<span class="depot-group-count">'+items.length+' ลาน</span></summary><div class="depot-group-content">'+(items.length?'<div class="depot-grid">'+items.map(depotCard).join('')+'</div>':'<p class="depot-group-empty">ยังไม่มีข้อมูลลานตู้ในพื้นที่นี้</p>')+'</div></details>').join('');
   const more=$('depotMore');more.hidden=zs.length<=depotShown;more.textContent='แสดงเพิ่ม (อีก '+(zs.length-depotShown)+' ลาน)';
   $('depotAll').textContent=depotShowAll?'แสดงเฉพาะลานที่มีรายงาน':'แสดงลานตู้ทั้งหมด';
 }
@@ -899,7 +914,7 @@ function capturePortReportDrafts(){
     const value=field=>card.querySelector('[data-field="'+field+'"]').value;
     portReportDrafts.set(card.dataset.zone,{
       status:value('status'),heavyQueue:value('heavyQueue'),heavyTrucks:value('heavyTrucks'),heavyRows:value('heavyRows'),
-      emptyQueue:value('emptyQueue'),emptyTrucks:value('emptyTrucks'),emptyRows:value('emptyRows'),insideQueue:value('insideQueue'),vessels:value('vessels')
+      emptyQueue:value('emptyQueue'),emptyTrucks:value('emptyTrucks'),emptyRows:value('emptyRows'),insideQueue:value('insideQueue'),vessels:value('vessels'),portNote:value('portNote')
     });
   });
 }
@@ -910,9 +925,9 @@ function renderPortReportFields(){
   const zones=[...document.querySelectorAll('input[name="portzone"]:checked')].map(el=>el.value);
   box.innerHTML=zones.map(zone=>{
     const d=portReportDrafts.get(zone)||{};
-    const number=(field,label,unit,value)=>'<label>'+label+'<input type="number" min="0" step="1" inputmode="numeric" data-field="'+field+'" value="'+esc(value||'')+'" required><span>'+unit+'</span></label>';
+    const number=(field,label,unit,value)=>'<label>'+label+'<input type="text" data-field="'+field+'" value="'+esc(value==null?'':value)+'" required><span>'+unit+'</span></label>';
     const queue=(kind,label)=>'<h4>'+label+'</h4><label>สถานะคิว<select data-field="'+kind+'Queue"><option value="no"'+(d[kind+'Queue']!=='yes'?' selected':'')+'>ไม่มีคิว</option><option value="yes"'+(d[kind+'Queue']==='yes'?' selected':'')+'>มีคิว</option></select></label><div class="port-report-fields queue-fields" data-queue-fields="'+kind+'"'+(d[kind+'Queue']==='yes'?'':' hidden')+'>'+number(kind+'Trucks','จำนวนรถ','คัน',d[kind+'Trucks'])+number(kind+'Rows','จำนวนแถว','แถว',d[kind+'Rows'])+'</div>';
-    return '<section class="port-report-zone" data-zone="'+esc(zone)+'"><h3>รายงาน '+esc(zone)+'</h3><label>สถานะโซน<select data-field="status"><option value="">เลือกสถานะ…</option>'+Object.entries(LABEL).map(([v,label])=>'<option value="'+v+'"'+(d.status===v?' selected':'')+'>'+label+'</option>').join('')+'</select></label><h4>1. คิวรถนอกท่า</h4>'+queue('heavy','1.1 หางหนัก')+queue('empty','1.2 หางเปล่า')+'<h4>2. คิวรถในท่า</h4><div class="port-report-fields">'+number('insideQueue','จำนวนคิวรถในท่า','คิว',d.insideQueue)+'</div><h4>3. การปฏิบัติงานเรือ</h4><div class="port-report-fields">'+number('vessels','จำนวนเรือ/สาย','สาย',d.vessels)+'</div></section>';
+    return '<section class="port-report-zone" data-zone="'+esc(zone)+'"><h3>รายงาน '+esc(zone)+'</h3><label>สถานะโซน<select data-field="status"><option value="">เลือกสถานะ…</option>'+Object.entries(LABEL).map(([v,label])=>'<option value="'+v+'"'+(d.status===v?' selected':'')+'>'+label+'</option>').join('')+'</select></label><h4>1. คิวรถนอกท่า</h4>'+queue('heavy','1.1 หางหนัก')+queue('empty','1.2 หางเปล่า')+'<h4>2. คิวรถในท่า</h4><div class="port-report-fields">'+number('insideQueue','จำนวนคิวรถในท่า','คิว',d.insideQueue)+'</div><h4>3. การปฏิบัติงานเรือ</h4><div class="port-report-fields">'+number('vessels','จำนวนเรือ/สาย','สาย',d.vessels)+'</div><h4>4. หมายเหตุ</h4><div class="port-report-fields"><label class="port-report-note">หมายเหตุ (ไม่บังคับ)<textarea data-field="portNote" maxlength="140" rows="2" placeholder="ระบุหมายเหตุของโซนนี้">'+esc(d.portNote||'')+'</textarea></label></div></section>';
   }).join('');
   box.hidden=!zones.length;
 }
@@ -922,6 +937,7 @@ function updateManualStatusControls(){
   $('rzone').disabled=usePortZones;
   $('portReportFields').hidden=!usePortZones;
   $('sharedStatusPicker').hidden=usePortZones;
+  $('sharedNoteField').hidden=usePortZones;
   if($('multiStatusPicker'))$('multiStatusPicker').hidden=true;
   renderPortReportFields();
 }
@@ -982,6 +998,8 @@ function getPortDetails(id){
 }
 function applyLocations(rows){
   if(!Array.isArray(rows)||!rows.length)return;
+  const signature=items=>JSON.stringify(items.filter(r=>r&&r.id).map(r=>Object.keys(r).sort().reduce((normalized,key)=>{normalized[key]=r[key];return normalized;},{})).sort((a,b)=>String(a.id).localeCompare(String(b.id))));
+  if(signature(rows)===signature(Object.values(REMOTE_LOCATIONS)))return;
   const nextTypes={...DEFAULT_PORT_TYPES};
   const nextFacilities=JSON.parse(JSON.stringify(DEFAULT_FACILITIES));
   const nextRemote={};
@@ -1063,6 +1081,7 @@ function syncFromSheet(force){
 function submitReport(){
   const selectedPorts=[...document.querySelectorAll('input[name="portzone"]:checked')].map(el=>el.value);
   let reports=[];
+  const reportValue=input=>{const text=input.value.trim(),number=Number(text);return text!==''&&Number.isInteger(number)&&number>=0?number:text;};
   if(selectedPorts.length){
     const invalid=selectedPorts.find(zone=>{
       const card=$('portReportFields').querySelector('.port-report-zone[data-zone="'+zone+'"]');
@@ -1073,13 +1092,13 @@ function submitReport(){
         const hasQueue=card.querySelector('[data-field="'+type+'Queue"]').value==='yes';
         if(!hasQueue)continue;
         for(const field of [type+'Trucks',type+'Rows']){
-          const input=card.querySelector('[data-field="'+field+'"]'),value=Number(input.value);
-          if(input.value.trim()===''||!Number.isInteger(value)||value<0){setMessage('กรุณากรอกจำนวนคันและจำนวนแถวของโซนนอกท่า '+zone,'err');input.focus();return true;}
+          const input=card.querySelector('[data-field="'+field+'"]');
+          if(input.value.trim()===''){setMessage('กรุณากรอกจำนวนคันและจำนวนแถวของโซนนอกท่า '+zone,'err');input.focus();return true;}
         }
       }
       for(const field of ['insideQueue','vessels']){
-        const input=card.querySelector('[data-field="'+field+'"]'),value=Number(input.value);
-        if(input.value.trim()===''||!Number.isInteger(value)||value<0){setMessage(field==='insideQueue'?'กรุณากรอกจำนวนคิวรถในท่า '+zone:'กรุณากรอกจำนวนเรือ/สาย '+zone,'err');input.focus();return true;}
+        const input=card.querySelector('[data-field="'+field+'"]');
+        if(input.value.trim()===''){setMessage(field==='insideQueue'?'กรุณากรอกจำนวนคิวรถในท่า '+zone:'กรุณากรอกจำนวนเรือ/สาย '+zone,'err');input.focus();return true;}
       }
       return false;
     });
@@ -1089,10 +1108,13 @@ function submitReport(){
       const value=field=>card.querySelector('[data-field="'+field+'"]');
       const queue=type=>{
         const hasQueue=value(type+'Queue').value==='yes';
-        return {hasQueue,truckCount:hasQueue?Number(value(type+'Trucks').value):null,rowCount:hasQueue?Number(value(type+'Rows').value):null};
+        return {hasQueue,truckCount:hasQueue?reportValue(value(type+'Trucks')):null,rowCount:hasQueue?reportValue(value(type+'Rows')):null};
       };
-      const details={outsideQueue:{heavy:queue('heavy'),empty:queue('empty')},insideQueueCount:Number(value('insideQueue').value),vesselOperationsCount:Number(value('vessels').value)};
-      return {id:makeId(),category:'port',zone,facility:labelOf(zone),status:value('status').value,wait:null,note:$('rnote').value.trim().slice(0,140),details,t:Date.now()};
+      const portNote=value('portNote').value.trim();
+      const details={outsideQueue:{heavy:queue('heavy'),empty:queue('empty')},insideQueueCount:reportValue(value('insideQueue')),vesselOperationsCount:reportValue(value('vessels')),portNote};
+      const queueNote=type=>{const item=details.outsideQueue[type];return item.hasQueue?item.truckCount+' คัน '+item.rowCount+' แถว':'ไม่มีคิว';};
+      const note=['คิวนอกท่า: หางหนัก '+queueNote('heavy')+', หางเปล่า '+queueNote('empty'),'คิวรถในท่า: '+details.insideQueueCount+' คิว','การปฏิบัติงานเรือ: '+details.vesselOperationsCount+' สาย',portNote?'หมายเหตุ: '+portNote:''].filter(Boolean).join(' | ');
+      return {id:makeId(),category:'port',zone,facility:labelOf(zone),status:value('status').value,wait:null,note,details,t:Date.now()};
     });
   }else{
     const zone=$('rzone').value,st=document.querySelector('input[name="st"]:checked');
